@@ -1,0 +1,40 @@
+# Binaries
+bin/
+dist/
+build/
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Coverage
+coverage.out
+
+# Environment files
+.env
+.env.local
+
+# IDEs
+.idea/
+.vscode/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Vendor directory
+vendor/
+
+# Temporary files
+tmp/
+temp/
+
+# JetBrains
+*.iml
