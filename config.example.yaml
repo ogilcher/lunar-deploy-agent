@@ -20,3 +20,10 @@ deployments:
       - type: "shell"
         name: "print_environment"
         command: "env"
+
+#      - type: "shell"
+#        name: "timeout_test"
+#        command: "sleep"
+#        arguments:
+#          - "10"gi
+#        timeout_seconds: 2

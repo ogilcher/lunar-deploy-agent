@@ -18,10 +18,11 @@ func BuildStep(
 
 	case "shell":
 		return &ShellCommandStep{
-			StepName:      stepConfig.Name,
-			Command:       stepConfig.Command,
-			Arguments:     stepConfig.Arguments,
-			DirectoryPath: repositoryPath,
+			StepName:       stepConfig.Name,
+			Command:        stepConfig.Command,
+			Arguments:      stepConfig.Arguments,
+			DirectoryPath:  repositoryPath,
+			TimeoutSeconds: stepConfig.TimeoutSeconds,
 		}, nil
 
 	default:

@@ -1,7 +1,10 @@
 package deploy
 
 import (
+	"context"
+	"os"
 	"os/exec"
+	"time"
 
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
 )
@@ -14,10 +17,11 @@ import (
 // - npm run build
 // - pm2 restart app
 type ShellCommandStep struct {
-	StepName      string
-	Command       string
-	Arguments     []string
-	DirectoryPath string
+	StepName       string
+	Command        string
+	Arguments      []string
+	DirectoryPath  string
+	TimeoutSeconds int
 }
 
 // Name returns the configured deployment step name.
@@ -27,7 +31,7 @@ func (s *ShellCommandStep) Name() string {
 
 // Run executes the configured command in the configured working directory.
 func (s *ShellCommandStep) Run(
-	context DeploymentContext,
+	deploymentContext DeploymentContext,
 ) error {
 	logger.Log.Infow(
 		"running shell command step.",
@@ -37,16 +41,30 @@ func (s *ShellCommandStep) Run(
 		"directory_path", s.DirectoryPath,
 	)
 
-	command := exec.Command(s.Command, s.Arguments...)
-	command.Dir = s.DirectoryPath
+	timeout := time.Duration(s.TimeoutSeconds) * time.Second
 
-	environmentVariables := BuildEnvironmentVariables(
-		context,
+	if s.TimeoutSeconds <= 0 {
+		timeout = 5 * time.Minute
+	}
+
+	commandContext, cancel := context.WithTimeout(
+		context.Background(),
+		timeout,
 	)
 
+	defer cancel()
+
+	command := exec.CommandContext(
+		commandContext,
+		s.Command,
+		s.Arguments...,
+	)
+
+	command.Dir = s.DirectoryPath
+
 	command.Env = append(
-		command.Env,
-		environmentVariables...,
+		os.Environ(),
+		BuildEnvironmentVariables(deploymentContext)...,
 	)
 
 	output, err := command.CombinedOutput()
