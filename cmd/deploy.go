@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ogilcher/lunar-deploy-agent/internal/config"
+	"github.com/ogilcher/lunar-deploy-agent/cmd/util"
 	"github.com/ogilcher/lunar-deploy-agent/internal/deploy"
 	"github.com/ogilcher/lunar-deploy-agent/internal/events"
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
@@ -22,16 +22,7 @@ var deployCmd = &cobra.Command{
 	Use:   "deploy",
 	Short: "Run a deployment operation",
 	Run: func(cmd *cobra.Command, args []string) {
-		appConfig, err := config.LoadConfig(deployConfigPath)
-		if err != nil {
-			logger.Log.Errorw("Failed to load config.", "error", err)
-			return
-		}
-
-		if err := config.ValidateConfig(appConfig); err != nil {
-			logger.Log.Errorw("Invalid deploy config.", "error", err)
-			return
-		}
+		appConfig := util.LoadAndValidateConfig(deployConfigPath)
 
 		deploymentConfig, exists := appConfig.Deployments[deploymentName]
 
