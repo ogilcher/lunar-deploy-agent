@@ -3,6 +3,7 @@ package deploy
 import (
 	"time"
 
+	"github.com/ogilcher/lunar-deploy-agent/internal/events"
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
 )
 
@@ -26,6 +27,16 @@ func (j *DeployJob) Run(
 	}
 
 	for _, step := range j.Steps {
+		events.GlobalEventBus.Publish(
+			events.DeploymentEvent{
+				Type:       "step_started",
+				Deployment: context.DeploymentName,
+				Step:       step.Name(),
+				Message:    "Deployment step started",
+				Timestamp:  time.Now(),
+			},
+		)
+
 		// Step starting
 		stepResult := DeploymentStepResult{
 			StepName: step.Name(),
@@ -61,6 +72,16 @@ func (j *DeployJob) Run(
 				"error", err,
 			)
 
+			events.GlobalEventBus.Publish(
+				events.DeploymentEvent{
+					Type:       "step_failed",
+					Deployment: context.DeploymentName,
+					Step:       step.Name(),
+					Message:    err.Error(),
+					Timestamp:  time.Now(),
+				},
+			)
+
 			return result, err
 		}
 
@@ -75,6 +96,16 @@ func (j *DeployJob) Run(
 			"Deployment step completed successfully.",
 			"deployment", context.DeploymentName,
 			"step", step.Name(),
+		)
+
+		events.GlobalEventBus.Publish(
+			events.DeploymentEvent{
+				Type:       "step_completed",
+				Deployment: context.DeploymentName,
+				Step:       step.Name(),
+				Message:    "Deployment step completed successfully.",
+				Timestamp:  time.Now(),
+			},
 		)
 
 	}
