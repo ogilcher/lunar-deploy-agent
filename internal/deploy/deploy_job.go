@@ -4,10 +4,12 @@ import (
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
 )
 
+// DeployJob executes a sequence of deployment steps in order.
 type DeployJob struct {
 	Steps []DeployStep
 }
 
+// Run executes each deployment step and stops on the first failure.
 func (j *DeployJob) Run() error {
 	for _, step := range j.Steps {
 		logger.Log.Infow(

@@ -4,8 +4,10 @@ import (
 	"go.uber.org/zap"
 )
 
+// Log is the shared structured logger used across the agent.
 var Log *zap.SugaredLogger
 
+// Initialize configures the shared production logger.
 func Initialize() error {
 	baseLogger, err := zap.NewProduction()
 

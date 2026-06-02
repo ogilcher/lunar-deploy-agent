@@ -5,11 +5,13 @@ import (
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
 )
 
+// LocalDeployer runs deployment jobs against a locally accessible repository
 type LocalDeployer struct {
 	RepositoryPath string
 	StepConfigs    []config.DeployStepConfig
 }
 
+// Deploy builds and executes the local deployment pipeline.
 func (d *LocalDeployer) Deploy() error {
 	logger.Log.Infow(
 		"Starting local deployment.",

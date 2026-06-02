@@ -6,6 +6,7 @@ import (
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
 )
 
+// ShellCommandStep executes a configured shell command as part of a deployment job.
 type ShellCommandStep struct {
 	StepName      string
 	Command       string
@@ -13,10 +14,12 @@ type ShellCommandStep struct {
 	DirectoryPath string
 }
 
+// Name returns the configured deployment step name.
 func (s *ShellCommandStep) Name() string {
 	return s.StepName
 }
 
+// Run executes the configured command in the configured working directory.
 func (s *ShellCommandStep) Run() error {
 	command := exec.Command(s.Command, s.Arguments...)
 	command.Dir = s.DirectoryPath

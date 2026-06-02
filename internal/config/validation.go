@@ -2,6 +2,7 @@ package config
 
 import "fmt"
 
+// ValidateConfig verifies that the loaded configuration contains all required values.
 func ValidateConfig(appConfig *Config) error {
 	if appConfig.AgentID == "" {
 		return fmt.Errorf("agend_id is required")
