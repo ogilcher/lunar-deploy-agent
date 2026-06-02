@@ -21,20 +21,19 @@ func (d *LocalDeployer) Deploy() error {
 	steps := []DeployStep{}
 
 	for _, stepConfig := range d.StepConfigs {
-		switch stepConfig.Type {
-		case "git_pull":
-			steps = append(steps, &GitPullStep{
-				RepositoryPath: d.RepositoryPath,
-			})
+		step, err := BuildStep(stepConfig, d.RepositoryPath)
 
-		case "shell":
-			steps = append(steps, &ShellCommandStep{
-				StepName:      stepConfig.Name,
-				Command:       stepConfig.Command,
-				Arguments:     stepConfig.Arguments,
-				DirectoryPath: d.RepositoryPath,
-			})
+		if err != nil {
+			logger.Log.Errorw(
+				"Failed to build deployment step.",
+				"type", stepConfig.Type,
+				"error", err,
+			)
+
+			return err
 		}
+
+		steps = append(steps, step)
 	}
 
 	job := DeployJob{
