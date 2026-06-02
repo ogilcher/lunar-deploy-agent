@@ -40,6 +40,15 @@ func (s *ShellCommandStep) Run(
 	command := exec.Command(s.Command, s.Arguments...)
 	command.Dir = s.DirectoryPath
 
+	environmentVariables := BuildEnvironmentVariables(
+		context,
+	)
+
+	command.Env = append(
+		command.Env,
+		environmentVariables...,
+	)
+
 	output, err := command.CombinedOutput()
 
 	logger.Log.Infow(

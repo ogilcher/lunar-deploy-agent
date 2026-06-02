@@ -46,11 +46,16 @@ func (d *LocalDeployer) Deploy() error {
 		Environment:    "development",
 	}
 
-	if err := job.Run(context); err != nil {
+	result, err := job.Run(context)
+
+	if err != nil {
 		return err
 	}
 
-	logger.Log.Info("Deployment completed successfully.")
+	logger.Log.Info(
+		"Deployment completed successfully.",
+		"step_count", len(result.StepResults),
+	)
 
 	return nil
 }

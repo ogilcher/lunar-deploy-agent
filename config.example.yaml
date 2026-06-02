@@ -16,3 +16,7 @@ deployments:
         arguments:
           - "status"
           - "--short"
+
+      - type: "shell"
+        name: "print_environment"
+        command: "env"
