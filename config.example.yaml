@@ -21,9 +21,45 @@ deployments:
         name: "print_environment"
         command: "env"
 
+      - type: "shell"
+        name: "print_working_directory"
+        command: "pwd"
+        working_directory: "."
+
 #      - type: "shell"
 #        name: "timeout_test"
 #        command: "sleep"
 #        arguments:
 #          - "10"gi
 #        timeout_seconds: 2
+
+  timeout-test:
+    repository_path: "."
+
+    steps:
+      - type: "shell"
+        name: "sleep_test"
+        command: "sleep"
+        arguments:
+          - "10"
+        timeout_seconds: 2
+
+  failure-test:
+    repository_path: "."
+
+    steps:
+      - type: "shell"
+        name: "successful_step"
+        command: "echo"
+        arguments:
+          - "hello"
+
+      - type: "shell"
+        name: "failing_step"
+        command: "fake-command-that-does-not-exist"
+
+      - type: "shell"
+        name: "should_not_run"
+        command: "echo"
+        arguments:
+          - "this should not execute"

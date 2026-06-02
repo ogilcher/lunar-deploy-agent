@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"time"
 
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
@@ -17,11 +18,12 @@ import (
 // - npm run build
 // - pm2 restart app
 type ShellCommandStep struct {
-	StepName       string
-	Command        string
-	Arguments      []string
-	DirectoryPath  string
-	TimeoutSeconds int
+	StepName         string
+	Command          string
+	Arguments        []string
+	DirectoryPath    string
+	TimeoutSeconds   int
+	WorkingDirectory string
 }
 
 // Name returns the configured deployment step name.
@@ -60,7 +62,16 @@ func (s *ShellCommandStep) Run(
 		s.Arguments...,
 	)
 
-	command.Dir = s.DirectoryPath
+	commandDirectory := s.DirectoryPath
+
+	if s.WorkingDirectory != "" {
+		commandDirectory = filepath.Join(
+			s.DirectoryPath,
+			s.WorkingDirectory,
+		)
+	}
+
+	command.Dir = commandDirectory
 
 	command.Env = append(
 		os.Environ(),
