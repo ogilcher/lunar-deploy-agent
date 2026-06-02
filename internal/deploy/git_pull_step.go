@@ -17,7 +17,9 @@ func (s *GitPullStep) Name() string {
 }
 
 // Run executes git pull inside the configured repository path.
-func (s *GitPullStep) Run() error {
+func (s *GitPullStep) Run(
+	context DeploymentContext,
+) error {
 	command := exec.Command(
 		"git",
 		"-C",

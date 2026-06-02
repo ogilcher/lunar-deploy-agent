@@ -26,7 +26,9 @@ func (s *ShellCommandStep) Name() string {
 }
 
 // Run executes the configured command in the configured working directory.
-func (s *ShellCommandStep) Run() error {
+func (s *ShellCommandStep) Run(
+	context DeploymentContext,
+) error {
 	logger.Log.Infow(
 		"running shell command step.",
 		"step", s.StepName,

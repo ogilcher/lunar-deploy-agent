@@ -10,14 +10,16 @@ type DeployJob struct {
 }
 
 // Run executes each deployment step and stops on the first failure.
-func (j *DeployJob) Run() error {
+func (j *DeployJob) Run(
+	context DeploymentContext,
+) error {
 	for _, step := range j.Steps {
 		logger.Log.Infow(
 			"Running deployment step.",
 			"step", step.Name(),
 		)
 
-		if err := step.Run(); err != nil {
+		if err := step.Run(context); err != nil {
 			logger.Log.Errorw(
 				"Deployment step failed.",
 				"step", step.Name(),

@@ -40,7 +40,13 @@ func (d *LocalDeployer) Deploy() error {
 		Steps: steps,
 	}
 
-	if err := job.Run(); err != nil {
+	context := DeploymentContext{
+		DeploymentName: "local",
+		RepositoryPath: d.RepositoryPath,
+		Environment:    "development",
+	}
+
+	if err := job.Run(context); err != nil {
 		return err
 	}
 
