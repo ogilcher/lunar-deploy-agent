@@ -3,6 +3,7 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/ogilcher/lunar-deploy-agent/internal/config"
 	"github.com/ogilcher/lunar-deploy-agent/internal/deploy"
@@ -72,7 +73,7 @@ var deployCmd = &cobra.Command{
 				"error", err,
 			)
 
-			return
+			os.Exit(1)
 		}
 
 		logger.Log.Info("Deploy command completed successfully.")
