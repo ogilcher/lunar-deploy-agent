@@ -23,7 +23,7 @@ func NewEventBus() *EventBus {
 
 // Subscribe registers a new event listener
 func (b *EventBus) Subscribe() chan DeploymentEvent {
-	b.mutex.Unlock()
+	b.mutex.Lock()
 	defer b.mutex.Unlock()
 
 	channel := make(chan DeploymentEvent, 100)

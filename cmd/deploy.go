@@ -7,6 +7,7 @@ import (
 
 	"github.com/ogilcher/lunar-deploy-agent/internal/config"
 	"github.com/ogilcher/lunar-deploy-agent/internal/deploy"
+	"github.com/ogilcher/lunar-deploy-agent/internal/events"
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
 	"github.com/spf13/cobra"
 )
@@ -14,6 +15,7 @@ import (
 var deployConfigPath string
 var deploymentName string
 var outputJSON bool
+var printEvents bool
 
 var deployCmd = &cobra.Command{
 	Use:   "deploy",
@@ -39,6 +41,22 @@ var deployCmd = &cobra.Command{
 			)
 
 			return
+		}
+
+		if printEvents {
+			eventChannel := events.GlobalEventBus.Subscribe()
+
+			go func() {
+				for event := range eventChannel {
+					fmt.Printf(
+						"[EVENT] %s | deployment=%s | step=%s | message=%s\n",
+						event.Type,
+						event.Deployment,
+						event.Step,
+						event.Message,
+					)
+				}
+			}()
 		}
 
 		localDeployer := deploy.LocalDeployer{
@@ -102,6 +120,13 @@ func init() {
 		"json",
 		false,
 		"Print deployment result as JSON",
+	)
+
+	deployCmd.Flags().BoolVar(
+		&printEvents,
+		"events",
+		false,
+		"Print deployment events in real time",
 	)
 
 	rootCmd.AddCommand(deployCmd)
