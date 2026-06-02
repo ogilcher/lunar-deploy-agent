@@ -1,7 +1,7 @@
 package main
 
-import "fmt"
+import "github.com/ogilcher/lunar-deploy-agent/cmd"
 
 func main() {
-	fmt.Println("Lunar Deploy Agent started.")
+	cmd.Execute()
 }
