@@ -1,0 +1,4 @@
+agent_id: "local-dev-agent"
+environment: "development"
+workspace_path: "./workspace"
+log-level: "info"
