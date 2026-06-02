@@ -12,17 +12,58 @@ func ValidateConfig(appConfig *Config) error {
 		return fmt.Errorf("environment is required")
 	}
 
-	if appConfig.Deployment.RepositoryPath == "" {
-		return fmt.Errorf("deployment.repository_path is required")
+	if len(appConfig.Deployments) == 0 {
+		return fmt.Errorf("at least one deployment is required")
 	}
 
-	for index, step := range appConfig.Deployment.Steps {
-		if step.Name == "" {
-			return fmt.Errorf("deployment.steps[%d].name is required", index)
+	for deploymentName, deployment := range appConfig.Deployments {
+		if deployment.RepositoryPath == "" {
+			return fmt.Errorf(
+				"deployments.%s.repository_path is required",
+				deploymentName,
+			)
 		}
 
-		if step.Command == "" {
-			return fmt.Errorf("deployment.steps[%d].command is required", index)
+		for index, step := range deployment.Steps {
+			if step.Type == "" {
+				return fmt.Errorf(
+					"deployment.%s.steps[%d].type is required",
+					deploymentName,
+					index,
+				)
+			}
+
+			switch step.Type {
+			case "git_pull":
+				// Native internal deployment step.
+				// No command validation required.
+
+			case "shell":
+				if step.Name == "" {
+					return fmt.Errorf(
+						"deployments.%s.steps[%d].name is required",
+						deploymentName,
+						index,
+					)
+				}
+
+				if step.Command == "" {
+					return fmt.Errorf(
+						"deployments.%s.steps[%d].command is required",
+						deploymentName,
+						index,
+					)
+				}
+
+			default:
+				return fmt.Errorf(
+					"deployments.%s.steps[%d].type %q is unsupported",
+					deploymentName,
+					index,
+					step.Type,
+				)
+			}
+
 		}
 	}
 

@@ -8,6 +8,7 @@ import (
 )
 
 var deployConfigPath string
+var deploymentName string
 
 var deployCmd = &cobra.Command{
 	Use:   "deploy",
@@ -24,9 +25,20 @@ var deployCmd = &cobra.Command{
 			return
 		}
 
+		deploymentConfig, exists := appConfig.Deployments[deploymentName]
+
+		if !exists {
+			logger.Log.Errorw(
+				"Deployment does not exist.",
+				"deployment", deploymentName,
+			)
+
+			return
+		}
+
 		localDeployer := deploy.LocalDeployer{
-			RepositoryPath: appConfig.Deployment.RepositoryPath,
-			StepConfigs:    appConfig.Deployment.Steps,
+			RepositoryPath: deploymentConfig.RepositoryPath,
+			StepConfigs:    deploymentConfig.Steps,
 		}
 
 		if err := localDeployer.Deploy(); err != nil {
@@ -45,6 +57,14 @@ func init() {
 		"c",
 		"config.example.yaml",
 		"Path to the deployment config file",
+	)
+
+	deployCmd.Flags().StringVarP(
+		&deploymentName,
+		"deployment",
+		"d",
+		"",
+		"Deployment name to execute",
 	)
 
 	rootCmd.AddCommand(deployCmd)

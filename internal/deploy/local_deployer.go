@@ -18,19 +18,23 @@ func (d *LocalDeployer) Deploy() error {
 		"repository_path", d.RepositoryPath,
 	)
 
-	steps := []DeployStep{
-		&GitPullStep{
-			RepositoryPath: d.RepositoryPath,
-		},
-	}
+	steps := []DeployStep{}
 
 	for _, stepConfig := range d.StepConfigs {
-		steps = append(steps, &ShellCommandStep{
-			StepName:      stepConfig.Name,
-			Command:       stepConfig.Command,
-			Arguments:     stepConfig.Arguments,
-			DirectoryPath: d.RepositoryPath,
-		})
+		switch stepConfig.Type {
+		case "git_pull":
+			steps = append(steps, &GitPullStep{
+				RepositoryPath: d.RepositoryPath,
+			})
+
+		case "shell":
+			steps = append(steps, &ShellCommandStep{
+				StepName:      stepConfig.Name,
+				Command:       stepConfig.Command,
+				Arguments:     stepConfig.Arguments,
+				DirectoryPath: d.RepositoryPath,
+			})
+		}
 	}
 
 	job := DeployJob{

@@ -1,13 +1,18 @@
 agent_id: "local-dev-agent"
 environment: "development"
 workspace_path: "./workspace"
-log-level: "info"
+log_level: "info"
 
-deployment:
-  repository_path: "."
-  steps:
-    - name: "git_status"
-      command: "git"
-      arguments:
-        - "status"
-        - "--short"
+deployments:
+  local-test:
+    repository_path: "."
+
+    steps:
+      - type: "git_pull"
+
+      - type: "shell"
+        name: "git_status"
+        command: "git"
+        arguments:
+          - "status"
+          - "--short"

@@ -8,11 +8,11 @@ import (
 
 // Config represents the root application configuration for the agent.
 type Config struct {
-	AgentID       string           `yaml:"agent_id"`
-	Environment   string           `yaml:"environment"`
-	WorkspacePath string           `yaml:"workspace_path"`
-	LogLevel      string           `yaml:"log_level"`
-	Deployment    DeploymentConfig `yaml:"deployment"`
+	AgentID       string                      `yaml:"agent_id"`
+	Environment   string                      `yaml:"environment"`
+	WorkspacePath string                      `yaml:"workspace_path"`
+	LogLevel      string                      `yaml:"log_level"`
+	Deployments   map[string]DeploymentConfig `yaml:"deployments"`
 }
 
 // DeploymentConfig defines the repository and step configuration used during deployment.
@@ -23,6 +23,7 @@ type DeploymentConfig struct {
 
 // DeployStepConfig represents a single shell-based deployment step loaded from YAML.
 type DeployStepConfig struct {
+	Type      string   `yaml:"type"`
 	Name      string   `yaml:"name"`
 	Command   string   `yaml:"command"`
 	Arguments []string `yaml:"arguments"`
