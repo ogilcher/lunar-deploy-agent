@@ -19,6 +19,11 @@ var configCmd = &cobra.Command{
 			return
 		}
 
+		if err := config.ValidateConfig(appConfig); err != nil {
+			logger.Log.Errorw("Invalid config.", "error", err)
+			return
+		}
+
 		logger.Log.Infow(
 			"Config loaded successfully",
 			"agent_id", appConfig.AgentID,

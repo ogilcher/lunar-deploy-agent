@@ -19,6 +19,11 @@ var deployCmd = &cobra.Command{
 			return
 		}
 
+		if err := config.ValidateConfig(appConfig); err != nil {
+			logger.Log.Errorw("Invalid deploy config.", "error", err)
+			return
+		}
+
 		localDeployer := deploy.LocalDeployer{
 			RepositoryPath: appConfig.Deployment.RepositoryPath,
 			StepConfigs:    appConfig.Deployment.Steps,
