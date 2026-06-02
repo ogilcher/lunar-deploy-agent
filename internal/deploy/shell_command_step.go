@@ -6,7 +6,13 @@ import (
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
 )
 
-// ShellCommandStep executes a configured shell command as part of a deployment job.
+// ShellCommandStep represents a configurable deployment step that runs
+// a shell command inside a target project directory.
+//
+// This is used for commands like:
+// - npm ci
+// - npm run build
+// - pm2 restart app
 type ShellCommandStep struct {
 	StepName      string
 	Command       string
@@ -21,17 +27,22 @@ func (s *ShellCommandStep) Name() string {
 
 // Run executes the configured command in the configured working directory.
 func (s *ShellCommandStep) Run() error {
+	logger.Log.Infow(
+		"running shell command step.",
+		"step", s.StepName,
+		"command", s.Command,
+		"arguments", s.Arguments,
+		"directory_path", s.DirectoryPath,
+	)
+
 	command := exec.Command(s.Command, s.Arguments...)
 	command.Dir = s.DirectoryPath
 
 	output, err := command.CombinedOutput()
 
 	logger.Log.Infow(
-		"Shell command output",
+		"Shell command output.",
 		"step", s.StepName,
-		"command", s.Command,
-		"arguments", s.Arguments,
-		"directory_path", s.DirectoryPath,
 		"output", string(output),
 	)
 
