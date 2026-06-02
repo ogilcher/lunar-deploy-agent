@@ -19,6 +19,12 @@ func (d *LocalDeployer) Deploy() error {
 			&GitPullStep{
 				RepositoryPath: d.RepositoryPath,
 			},
+			&ShellCommandStep{
+				StepName:      "status_check",
+				Command:       "git",
+				Arguments:     []string{"status", "--short"},
+				DirectoryPath: d.RepositoryPath,
+			},
 		},
 	}
 
@@ -27,7 +33,7 @@ func (d *LocalDeployer) Deploy() error {
 	}
 
 	logger.Log.Info("Deployment completed successfully.")
-	
+
 	return nil
 	//
 	//command := exec.Command("git", "-C", d.RepositoryPath, "pull")
