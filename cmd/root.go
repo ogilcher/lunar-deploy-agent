@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
 	"github.com/spf13/cobra"
 )
 
@@ -17,8 +18,17 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() {
+	if err := logger.Initialize(); err != nil {
+		fmt.Println("Failed to initialize logger:", err)
+
+		os.Exit(1)
+	}
+
+	logger.Log.Info("Logger initialized.")
+
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		logger.Log.Error(err)
+
 		os.Exit(1)
 	}
 }
