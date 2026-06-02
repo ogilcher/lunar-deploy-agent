@@ -16,6 +16,7 @@ var deployConfigPath string
 var deploymentName string
 var outputJSON bool
 var printEvents bool
+var printEventsJSON bool
 
 var deployCmd = &cobra.Command{
 	Use:   "deploy",
@@ -48,6 +49,22 @@ var deployCmd = &cobra.Command{
 
 			go func() {
 				for event := range eventChannel {
+					if printEventsJSON {
+						eventJSON, marshalErr := json.Marshal(event)
+
+						if marshalErr != nil {
+							logger.Log.Errorw(
+								"Failed to serialize deployment event.",
+								"error", marshalErr,
+							)
+
+							continue
+						}
+
+						fmt.Println(string(eventJSON))
+						continue
+					}
+
 					fmt.Printf(
 						"[EVENT] %s | deployment=%s | step=%s | message=%s\n",
 						event.Type,
@@ -127,6 +144,13 @@ func init() {
 		"events",
 		false,
 		"Print deployment events in real time",
+	)
+
+	deployCmd.Flags().BoolVar(
+		&printEventsJSON,
+		"event-json",
+		false,
+		"Print deployment events as JSON",
 	)
 
 	rootCmd.AddCommand(deployCmd)
