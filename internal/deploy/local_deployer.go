@@ -1,8 +1,6 @@
 package deploy
 
 import (
-	"os/exec"
-
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
 )
 
@@ -16,25 +14,41 @@ func (d *LocalDeployer) Deploy() error {
 		"repository_path", d.RepositoryPath,
 	)
 
-	command := exec.Command("git", "-C", d.RepositoryPath, "pull")
+	job := DeployJob{
+		Steps: []DeployStep{
+			&GitPullStep{
+				RepositoryPath: d.RepositoryPath,
+			},
+		},
+	}
 
-	output, err := command.CombinedOutput()
-
-	logger.Log.Infow(
-		"Git pull completed.",
-		"output", string(output),
-	)
-
-	if err != nil {
-		logger.Log.Errorw(
-			"Deployment failed.",
-			"error", err,
-		)
-
+	if err := job.Run(); err != nil {
 		return err
 	}
 
 	logger.Log.Info("Deployment completed successfully.")
-
+	
 	return nil
+	//
+	//command := exec.Command("git", "-C", d.RepositoryPath, "pull")
+	//
+	//output, err := command.CombinedOutput()
+	//
+	//logger.Log.Infow(
+	//	"Git pull completed.",
+	//	"output", string(output),
+	//)
+	//
+	//if err != nil {
+	//	logger.Log.Errorw(
+	//		"Deployment failed.",
+	//		"error", err,
+	//	)
+	//
+	//	return err
+	//}
+	//
+	//logger.Log.Info("Deployment completed successfully.")
+	//
+	//return nil
 }
