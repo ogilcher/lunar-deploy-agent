@@ -1,4 +1,4 @@
-package deploy
+package context
 
 // BuildEnvironmentVariables converts deployed context
 // into shell environment variables for deployment steps.

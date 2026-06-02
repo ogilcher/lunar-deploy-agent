@@ -1,4 +1,4 @@
-package deploy
+package engine
 
 // Deployer defines the behavior required for deployment implementations.
 type Deployer interface {

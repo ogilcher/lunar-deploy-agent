@@ -2,6 +2,9 @@ package deploy
 
 import (
 	"github.com/ogilcher/lunar-deploy-agent/internal/config"
+	context2 "github.com/ogilcher/lunar-deploy-agent/internal/deploy/context"
+	"github.com/ogilcher/lunar-deploy-agent/internal/deploy/engine"
+	steps2 "github.com/ogilcher/lunar-deploy-agent/internal/deploy/steps"
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
 )
 
@@ -12,16 +15,16 @@ type LocalDeployer struct {
 }
 
 // Deploy builds and executes the local deployment pipeline.
-func (d *LocalDeployer) Deploy() (*DeploymentResult, error) {
+func (d *LocalDeployer) Deploy() (*engine.DeploymentResult, error) {
 	logger.Log.Infow(
 		"Starting local deployment.",
 		"repository_path", d.RepositoryPath,
 	)
 
-	steps := []DeployStep{}
+	steps := []steps2.DeployStep{}
 
 	for _, stepConfig := range d.StepConfigs {
-		step, err := BuildStep(stepConfig, d.RepositoryPath)
+		step, err := steps2.BuildStep(stepConfig, d.RepositoryPath)
 
 		if err != nil {
 			logger.Log.Errorw(
@@ -36,11 +39,11 @@ func (d *LocalDeployer) Deploy() (*DeploymentResult, error) {
 		steps = append(steps, step)
 	}
 
-	job := DeployJob{
+	job := engine.DeployJob{
 		Steps: steps,
 	}
 
-	context := DeploymentContext{
+	context := context2.DeploymentContext{
 		DeploymentName: "local",
 		RepositoryPath: d.RepositoryPath,
 		Environment:    "development",

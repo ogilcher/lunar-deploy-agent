@@ -1,8 +1,9 @@
-package deploy
+package steps
 
 import (
 	"os/exec"
 
+	"github.com/ogilcher/lunar-deploy-agent/internal/deploy/context"
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
 )
 
@@ -18,7 +19,7 @@ func (s *GitPullStep) Name() string {
 
 // Run executes git pull inside the configured repository path.
 func (s *GitPullStep) Run(
-	context DeploymentContext,
+	context context.DeploymentContext,
 ) error {
 	command := exec.Command(
 		"git",

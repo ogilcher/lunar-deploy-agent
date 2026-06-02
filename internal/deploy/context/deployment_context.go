@@ -1,4 +1,4 @@
-package deploy
+package context
 
 // DeploymentContext contains runtime deployment information
 // shared across deployment steps.

@@ -1,4 +1,4 @@
-package deploy
+package steps
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
+	context2 "github.com/ogilcher/lunar-deploy-agent/internal/deploy/context"
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
 )
 
@@ -33,7 +34,7 @@ func (s *ShellCommandStep) Name() string {
 
 // Run executes the configured command in the configured working directory.
 func (s *ShellCommandStep) Run(
-	deploymentContext DeploymentContext,
+	deploymentContext context2.DeploymentContext,
 ) error {
 	logger.Log.Infow(
 		"running shell command step.",
@@ -75,7 +76,7 @@ func (s *ShellCommandStep) Run(
 
 	command.Env = append(
 		os.Environ(),
-		BuildEnvironmentVariables(deploymentContext)...,
+		context2.BuildEnvironmentVariables(deploymentContext)...,
 	)
 
 	output, err := command.CombinedOutput()

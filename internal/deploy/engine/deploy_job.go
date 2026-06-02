@@ -1,8 +1,10 @@
-package deploy
+package engine
 
 import (
 	"time"
 
+	"github.com/ogilcher/lunar-deploy-agent/internal/deploy/context"
+	"github.com/ogilcher/lunar-deploy-agent/internal/deploy/steps"
 	"github.com/ogilcher/lunar-deploy-agent/internal/events"
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
 )
@@ -12,12 +14,12 @@ import (
 // A job is made up of ordered deployment steps. Each step runs one at a time,
 // and the job stops immediately if any step fails.
 type DeployJob struct {
-	Steps []DeployStep
+	Steps []steps.DeployStep
 }
 
 // Run executes each deployment step and stops on the first failure.
 func (j *DeployJob) Run(
-	context DeploymentContext,
+	context context.DeploymentContext,
 ) (*DeploymentResult, error) {
 	result := &DeploymentResult{
 		DeploymentName: context.DeploymentName,
