@@ -2,3 +2,12 @@ agent_id: "local-dev-agent"
 environment: "development"
 workspace_path: "./workspace"
 log-level: "info"
+
+deployment:
+  repository_path: "."
+  steps:
+    - name: "git_status"
+      command: "git"
+      arguments:
+        - "status"
+        - "--short"
