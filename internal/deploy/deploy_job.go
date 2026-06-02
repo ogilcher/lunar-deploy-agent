@@ -20,6 +20,7 @@ func (j *DeployJob) Run(
 ) (*DeploymentResult, error) {
 	result := &DeploymentResult{
 		DeploymentName: context.DeploymentName,
+		Success:        false,
 		Started:        time.Now(),
 		StepResults:    []DeploymentStepResult{},
 	}
@@ -28,19 +29,22 @@ func (j *DeployJob) Run(
 		// Step starting
 		stepResult := DeploymentStepResult{
 			StepName: step.Name(),
+			Success:  false,
 			Started:  time.Now(),
 		}
+
 		logger.Log.Infow(
 			"Running deployment step.",
 			"deployment", context.DeploymentName,
 			"step", step.Name(),
 		)
 
-		// Failure
-		if err := step.Run(context); err != nil {
-			stepResult.Success = false
+		err := step.Run(context)
+
+		stepResult.Finished = time.Now()
+
+		if err != nil {
 			stepResult.Error = err.Error()
-			stepResult.Finished = time.Now()
 
 			result.StepResults = append(
 				result.StepResults,
@@ -60,26 +64,26 @@ func (j *DeployJob) Run(
 			return result, err
 		}
 
-		// Success
 		stepResult.Success = true
-		stepResult.Finished = time.Now()
 
 		result.StepResults = append(
 			result.StepResults,
-			stepResult)
+			stepResult,
+		)
 
 		logger.Log.Infow(
-			"Deployment step completed.",
+			"Deployment step completed successfully.",
 			"deployment", context.DeploymentName,
 			"step", step.Name(),
 		)
+
 	}
 
 	result.Success = true
 	result.Finished = time.Now()
 
 	logger.Log.Infow(
-		"Deployment job completed.",
+		"Deployment job completed successfully.",
 		"deployment", context.DeploymentName,
 		"success", result.Success,
 		"step_count", len(result.StepResults),

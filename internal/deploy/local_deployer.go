@@ -12,7 +12,7 @@ type LocalDeployer struct {
 }
 
 // Deploy builds and executes the local deployment pipeline.
-func (d *LocalDeployer) Deploy() error {
+func (d *LocalDeployer) Deploy() (*DeploymentResult, error) {
 	logger.Log.Infow(
 		"Starting local deployment.",
 		"repository_path", d.RepositoryPath,
@@ -30,7 +30,7 @@ func (d *LocalDeployer) Deploy() error {
 				"error", err,
 			)
 
-			return err
+			return nil, err
 		}
 
 		steps = append(steps, step)
@@ -49,7 +49,7 @@ func (d *LocalDeployer) Deploy() error {
 	result, err := job.Run(context)
 
 	if err != nil {
-		return err
+		return result, err
 	}
 
 	logger.Log.Info(
@@ -57,5 +57,5 @@ func (d *LocalDeployer) Deploy() error {
 		"step_count", len(result.StepResults),
 	)
 
-	return nil
+	return result, nil
 }

@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"encoding/json"
+	"fmt"
+
 	"github.com/ogilcher/lunar-deploy-agent/internal/config"
 	"github.com/ogilcher/lunar-deploy-agent/internal/deploy"
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
@@ -9,6 +12,7 @@ import (
 
 var deployConfigPath string
 var deploymentName string
+var outputJSON bool
 
 var deployCmd = &cobra.Command{
 	Use:   "deploy",
@@ -41,12 +45,37 @@ var deployCmd = &cobra.Command{
 			StepConfigs:    deploymentConfig.Steps,
 		}
 
-		if err := localDeployer.Deploy(); err != nil {
-			logger.Log.Errorw("Deploy command failed.", "error", err)
+		result, err := localDeployer.Deploy()
+
+		if outputJSON && result != nil {
+			resultJSON, marshalErr := json.MarshalIndent(
+				result,
+				"",
+				"	",
+			)
+
+			if marshalErr != nil {
+				logger.Log.Errorw(
+					"Failed to serialize deployment result.",
+					"error", marshalErr,
+				)
+
+				return
+			}
+
+			fmt.Println(string(resultJSON))
+		}
+
+		if err != nil {
+			logger.Log.Errorw(
+				"Deploy command failed.",
+				"error", err,
+			)
+
 			return
 		}
 
-		logger.Log.Info("Deploy command completed.")
+		logger.Log.Info("Deploy command completed successfully.")
 	},
 }
 
@@ -65,6 +94,13 @@ func init() {
 		"d",
 		"",
 		"Deployment name to execute",
+	)
+
+	deployCmd.Flags().BoolVar(
+		&outputJSON,
+		"json",
+		false,
+		"Print deployment result as JSON",
 	)
 
 	rootCmd.AddCommand(deployCmd)

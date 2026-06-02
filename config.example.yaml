@@ -26,12 +26,22 @@ deployments:
         command: "pwd"
         working_directory: "."
 
-#      - type: "shell"
-#        name: "timeout_test"
-#        command: "sleep"
-#        arguments:
-#          - "10"gi
-#        timeout_seconds: 2
+  happy-path:
+    repository_path: "."
+
+    steps:
+      - type: "git_pull"
+
+      - type: "shell"
+        name: "print_environment"
+        command: "env"
+
+      - type: "shell"
+        name: "git_status"
+        command: "git"
+        arguments:
+          - "status"
+          - "--short"
 
   timeout-test:
     repository_path: "."
@@ -56,10 +66,10 @@ deployments:
 
       - type: "shell"
         name: "failing_step"
-        command: "fake-command-that-does-not-exist"
+        command: "false"
 
       - type: "shell"
         name: "should_not_run"
         command: "echo"
         arguments:
-          - "this should not execute"
+          - "this should never execute"
