@@ -18,16 +18,17 @@ func BuildStep(
 
 	case "shell":
 		return &ShellCommandStep{
-			StepName:         stepConfig.Name,
-			Command:          stepConfig.Command,
-			Arguments:        stepConfig.Arguments,
-			DirectoryPath:    repositoryPath,
-			TimeoutSeconds:   stepConfig.TimeoutSeconds,
-			WorkingDirectory: stepConfig.WorkingDirectory,
+			StepName:          stepConfig.Name,
+			Command:           stepConfig.Command,
+			Arguments:         stepConfig.Arguments,
+			DirectoryPath:     repositoryPath,
+			TimeoutSeconds:    stepConfig.TimeoutSeconds,
+			WorkingDirectory:  stepConfig.WorkingDirectory,
+			Retries:           stepConfig.Retries,
+			RetryDelaySeconds: stepConfig.RetryDelaySeconds,
 		}, nil
 
 	default:
 		return nil, fmt.Errorf("unsupported deployment step type: %s", stepConfig.Type)
-
 	}
 }

@@ -73,3 +73,13 @@ deployments:
         command: "echo"
         arguments:
           - "this should never execute"
+
+  retry-test:
+    repository_path: "."
+
+    steps:
+      - type: "shell"
+        name: "retry_failure"
+        command: "false"
+        retries: 2
+        retry_delay_seconds: 1

@@ -23,12 +23,14 @@ type DeploymentConfig struct {
 
 // DeployStepConfig represents a single shell-based deployment step loaded from YAML.
 type DeployStepConfig struct {
-	Type             string   `yaml:"type"`
-	Name             string   `yaml:"name"`
-	Command          string   `yaml:"command"`
-	Arguments        []string `yaml:"arguments"`
-	TimeoutSeconds   int      `yaml:"timeout_seconds"`
-	WorkingDirectory string   `yaml:"working_directory"`
+	Type              string   `yaml:"type"`
+	Name              string   `yaml:"name"`
+	Command           string   `yaml:"command"`
+	Arguments         []string `yaml:"arguments"`
+	TimeoutSeconds    int      `yaml:"timeout_seconds"`
+	WorkingDirectory  string   `yaml:"working_directory"`
+	Retries           int      `yaml:"retries"`
+	RetryDelaySeconds int      `yaml:"retry_delay_seconds"`
 }
 
 // LoadConfig reads and parses an agent configuration file from disk.
