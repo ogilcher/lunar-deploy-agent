@@ -81,6 +81,9 @@ func (j *DeployJob) Run(
 					Step:       step.Name(),
 					Message:    err.Error(),
 					Timestamp:  time.Now(),
+					DurationMilliseconds: stepResult.Finished.Sub(
+						stepResult.Started,
+					).Milliseconds(),
 				},
 			)
 
@@ -107,6 +110,9 @@ func (j *DeployJob) Run(
 				Step:       step.Name(),
 				Message:    "Deployment step completed successfully.",
 				Timestamp:  time.Now(),
+				DurationMilliseconds: stepResult.Finished.Sub(
+					stepResult.Started,
+				).Milliseconds(),
 			},
 		)
 
