@@ -38,6 +38,15 @@ func ValidateConfig(appConfig *Config) error {
 				// Native internal deployment step.
 				// No command validation required.
 
+			case "pm2_restart":
+				if step.ProcessName == "" {
+					return fmt.Errorf(
+						"deployments.%s.steps[%d].process_name is required",
+						deploymentName,
+						index,
+					)
+				}
+
 			case "shell":
 				if step.Name == "" {
 					return fmt.Errorf(

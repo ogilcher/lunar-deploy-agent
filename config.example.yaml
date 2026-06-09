@@ -4,28 +4,6 @@ workspace_path: "./workspace"
 log_level: "info"
 
 deployments:
-  local-test:
-    repository_path: "."
-
-    steps:
-      - type: "git_pull"
-
-      - type: "shell"
-        name: "git_status"
-        command: "git"
-        arguments:
-          - "status"
-          - "--short"
-
-      - type: "shell"
-        name: "print_environment"
-        command: "env"
-
-      - type: "shell"
-        name: "print_working_directory"
-        command: "pwd"
-        working_directory: "."
-
   happy-path:
     repository_path: "."
 
@@ -83,3 +61,10 @@ deployments:
         command: "false"
         retries: 2
         retry_delay_seconds: 1
+
+  pm2-validation-test:
+    repository_path: "."
+
+    steps:
+      - type: "pm2_restart"
+        process_name: "test-app"
