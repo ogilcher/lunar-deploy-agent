@@ -14,6 +14,7 @@ var historyPath string
 var historyOutputJSON bool
 var historyLimit int
 var historyDeploymentFilter string
+var historySummary bool
 
 var historyCmd = &cobra.Command{
 	Use:   "history",
@@ -52,6 +53,34 @@ var historyCmd = &cobra.Command{
 
 		if historyLimit > 0 && historyLimit < len(results) {
 			results = results[len(results)-historyLimit:]
+		}
+
+		if historySummary {
+			total := len(results)
+			successful := 0
+
+			for _, result := range results {
+				if result.Success {
+					successful++
+				}
+			}
+
+			failed := total - successful
+			successRate := 0.0
+
+			if total > 0 {
+				successRate = float64(successful) / float64(total) * 100
+			}
+
+			logger.Log.Infow(
+				"Deployment history summary.",
+				"total", total,
+				"successful", successful,
+				"failed", failed,
+				"success_rate", successRate,
+			)
+
+			return
 		}
 
 		if historyOutputJSON {
@@ -110,6 +139,13 @@ func init() {
 		"deployment",
 		"",
 		"Filter deployment history by deployment name",
+	)
+
+	historyCmd.Flags().BoolVar(
+		&historySummary,
+		"summary",
+		false,
+		"Show deployment history summary",
 	)
 
 	rootCmd.AddCommand(historyCmd)
