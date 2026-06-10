@@ -9,6 +9,7 @@ import (
 	"github.com/ogilcher/lunar-deploy-agent/internal/config"
 	"github.com/ogilcher/lunar-deploy-agent/internal/deploy"
 	"github.com/ogilcher/lunar-deploy-agent/internal/events"
+	"github.com/ogilcher/lunar-deploy-agent/internal/history"
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
 	"github.com/spf13/cobra"
 )
@@ -88,6 +89,16 @@ var deployCmd = &cobra.Command{
 		}
 
 		result, err := localDeployer.Deploy()
+
+		if saveErr := history.SaveDeploymentResult(
+			".lunar-deploy",
+			result,
+		); saveErr != nil {
+			logger.Log.Errorw(
+				"Failed to save deployment history.",
+				"error", saveErr,
+			)
+		}
 
 		if outputJSON && result != nil {
 			resultJSON, marshalErr := json.MarshalIndent(

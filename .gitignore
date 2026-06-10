@@ -38,3 +38,6 @@ temp/
 
 # JetBrains
 *.iml
+
+# History
+.lunar-deploy/
