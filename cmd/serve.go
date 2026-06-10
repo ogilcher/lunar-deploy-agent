@@ -7,6 +7,7 @@ import (
 )
 
 var serveAddress string
+var serveConfigPath string
 
 var serveCmd = &cobra.Command{
 	Use:   "serve",
@@ -17,7 +18,7 @@ var serveCmd = &cobra.Command{
 			"address", serveAddress,
 		)
 
-		if err := server.StartServer(serveAddress); err != nil {
+		if err := server.StartServer(serveAddress, serveConfigPath); err != nil {
 			logger.Log.Errorw(
 				"Server stopped with error.",
 				"error", err,
@@ -32,6 +33,14 @@ func init() {
 		"address",
 		":8080",
 		"HTTP server listen address",
+	)
+
+	serveCmd.Flags().StringVarP(
+		&serveConfigPath,
+		"config",
+		"c",
+		"config.example.yaml",
+		"Path to the deployment config file",
 	)
 
 	rootCmd.AddCommand(serveCmd)
