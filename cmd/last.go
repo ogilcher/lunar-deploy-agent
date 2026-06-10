@@ -1,12 +1,16 @@
 package cmd
 
 import (
+	"encoding/json"
+	"fmt"
+
 	"github.com/ogilcher/lunar-deploy-agent/internal/history"
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
 	"github.com/spf13/cobra"
 )
 
 var lastHistoryPath string
+var lastOutputJSON bool
 
 var lastCmd = &cobra.Command{
 	Use:   "last",
@@ -32,6 +36,22 @@ var lastCmd = &cobra.Command{
 
 		lastResult := results[len(results)-1]
 
+		if lastOutputJSON {
+			resultJSON, err := json.MarshalIndent(lastResult, "", "  ")
+
+			if err != nil {
+				logger.Log.Errorw(
+					"Failed to serialize last deployment result.",
+					"error", err,
+				)
+
+				return
+			}
+
+			fmt.Println(string(resultJSON))
+			return
+		}
+
 		logger.Log.Infow(
 			"Last deployment result.",
 			"deployment", lastResult,
@@ -49,6 +69,13 @@ func init() {
 		"file",
 		".lunar-deploy/history.jsonl",
 		"Path to deployment history file",
+	)
+
+	lastCmd.Flags().BoolVar(
+		&lastOutputJSON,
+		"json",
+		false,
+		"Print last deployment result as JSON",
 	)
 
 	rootCmd.AddCommand(lastCmd)
