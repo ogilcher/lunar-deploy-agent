@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 
 	"github.com/ogilcher/lunar-deploy-agent/cmd/util"
@@ -11,6 +13,15 @@ import (
 
 var statusConfigPath string
 var statusHistoryPath string
+var statusOutputJSON bool
+
+type AgentStatus struct {
+	ConfigValid           bool `json:"config_valid"`
+	DeploymentCount       int  `json:"deployment_count"`
+	HistoryExists         bool `json:"history_exists"`
+	HistoryCount          int  `json:"history_count"`
+	LastDeploymentSuccess bool `json:"last_deployment_success"`
+}
 
 var statusCmd = &cobra.Command{
 	Use:   "status",
@@ -22,12 +33,13 @@ var statusCmd = &cobra.Command{
 
 		if err != nil {
 			if os.IsNotExist(err) {
-				logger.Log.Infow(
-					"Agent status.",
-					"config_valid", true,
-					"deployment_count", len(appConfig.Deployments),
-					"history_exists", false,
-					"history_count", 0,
+				printAgentStatus(
+					AgentStatus{
+						ConfigValid:     true,
+						DeploymentCount: len(appConfig.Deployments),
+						HistoryExists:   false,
+						HistoryCount:    0,
+					},
 				)
 
 				return
@@ -47,15 +59,44 @@ var statusCmd = &cobra.Command{
 			lastSuccess = results[len(results)-1].Success
 		}
 
-		logger.Log.Infow(
-			"Agent status.",
-			"config_valid", true,
-			"deployment_count", len(appConfig.Deployments),
-			"history_exists", true,
-			"history_count", len(results),
-			"last_deployment_success", lastSuccess,
-		)
+		printAgentStatus(
+			AgentStatus{
+				ConfigValid:           true,
+				DeploymentCount:       len(appConfig.Deployments),
+				HistoryExists:         true,
+				HistoryCount:          len(results),
+				LastDeploymentSuccess: lastSuccess,
+			})
 	},
+}
+
+func printAgentStatus(
+	status AgentStatus,
+) {
+	if statusOutputJSON {
+		statusJSON, err := json.MarshalIndent(status, "", "	")
+
+		if err != nil {
+			logger.Log.Errorw(
+				"Failed to serialize agent status.",
+				"error", err,
+			)
+
+			return
+		}
+
+		fmt.Println(string(statusJSON))
+		return
+	}
+
+	logger.Log.Infow(
+		"Agent status.",
+		"config_valid", status.ConfigValid,
+		"deployment_count", status.DeploymentCount,
+		"history_exists", status.HistoryExists,
+		"history_count", status.HistoryCount,
+		"last_deployment_success", status.LastDeploymentSuccess,
+	)
 }
 
 func init() {
@@ -72,6 +113,13 @@ func init() {
 		"history-file",
 		".lunar-deploy/history.jsonl",
 		"Path to deployment history file",
+	)
+
+	statusCmd.Flags().BoolVar(
+		&statusOutputJSON,
+		"json",
+		false,
+		"Print local agent status as JSON",
 	)
 
 	rootCmd.AddCommand(statusCmd)
