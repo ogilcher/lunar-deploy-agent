@@ -1,4 +1,4 @@
-package steps
+package git
 
 import (
 	"os/exec"

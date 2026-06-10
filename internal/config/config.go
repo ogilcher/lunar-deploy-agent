@@ -33,6 +33,8 @@ type DeployStepConfig struct {
 	RetryDelaySeconds int      `yaml:"retry_delay_seconds"`
 	ProcessName       string   `yaml:"process_name"`
 	StartCommand      string   `yaml:"start_command"`
+	URL               string   `yaml:"url"`
+	ExpectedStatus    int      `yaml:"expected_status"`
 }
 
 // LoadConfig reads and parses an agent configuration file from disk.

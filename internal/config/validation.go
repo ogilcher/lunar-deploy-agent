@@ -66,6 +66,23 @@ func ValidateConfig(appConfig *Config) error {
 					)
 				}
 
+			case "http_health_check":
+				if step.URL == "" {
+					return fmt.Errorf(
+						"deployments.%s.steps[%d].url is required",
+						deploymentName,
+						index,
+					)
+				}
+
+				if step.ExpectedStatus == 0 {
+					return fmt.Errorf(
+						"deployments.%s.steps[%d].expected_status is required",
+						deploymentName,
+						index,
+					)
+				}
+
 			case "shell":
 				if step.Name == "" {
 					return fmt.Errorf(

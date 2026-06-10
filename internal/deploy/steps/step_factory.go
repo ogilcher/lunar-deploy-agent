@@ -4,8 +4,11 @@ import (
 	"fmt"
 
 	"github.com/ogilcher/lunar-deploy-agent/internal/config"
+	"github.com/ogilcher/lunar-deploy-agent/internal/deploy/steps/git"
+	"github.com/ogilcher/lunar-deploy-agent/internal/deploy/steps/http"
 	"github.com/ogilcher/lunar-deploy-agent/internal/deploy/steps/npm"
 	"github.com/ogilcher/lunar-deploy-agent/internal/deploy/steps/pm2"
+	"github.com/ogilcher/lunar-deploy-agent/internal/deploy/steps/shell"
 )
 
 func BuildStep(
@@ -14,12 +17,12 @@ func BuildStep(
 ) (DeployStep, error) {
 	switch stepConfig.Type {
 	case "git_pull":
-		return &GitPullStep{
+		return &git.GitPullStep{
 			RepositoryPath: repositoryPath,
 		}, nil
 
 	case "shell":
-		return &ShellCommandStep{
+		return &shell.ShellCommandStep{
 			StepName:          stepConfig.Name,
 			Command:           stepConfig.Command,
 			Arguments:         stepConfig.Arguments,
@@ -28,6 +31,13 @@ func BuildStep(
 			WorkingDirectory:  stepConfig.WorkingDirectory,
 			Retries:           stepConfig.Retries,
 			RetryDelaySeconds: stepConfig.RetryDelaySeconds,
+		}, nil
+
+	case "http_health_check":
+		return &http.HTTPHealthCheckStep{
+			URL:            stepConfig.URL,
+			ExpectedStatus: stepConfig.ExpectedStatus,
+			TimeoutSeconds: stepConfig.TimeoutSeconds,
 		}, nil
 
 	case "pm2_restart":
