@@ -95,6 +95,11 @@ deployments:
         arguments:
           - "start"
 
+  pm2-save-test:
+    repository_path: "."
+    steps:
+      - type: "pm2_save"
+
   npm-install-test:
     repository_path: "."
 

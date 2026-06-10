@@ -39,6 +39,7 @@ func ValidateConfig(appConfig *Config) error {
 			case "git_pull":
 			case "npm_install":
 			case "npm_build":
+			case "pm2_save":
 
 			case "pm2_start_or_restart":
 				if step.ProcessName == "" {

@@ -53,6 +53,9 @@ func BuildStep(
 			DirectoryPath: repositoryPath,
 		}, nil
 
+	case "pm2_save":
+		return &pm2.PM2SaveStep{}, nil
+
 	case "npm_install":
 		return &npm.NPMInstallStep{
 			DirectoryPath: repositoryPath,
