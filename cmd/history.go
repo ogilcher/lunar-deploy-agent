@@ -11,6 +11,7 @@ import (
 
 var historyPath string
 var historyOutputJSON bool
+var historyLimit int
 
 var historyCmd = &cobra.Command{
 	Use:   "history",
@@ -30,6 +31,10 @@ var historyCmd = &cobra.Command{
 		if len(results) == 0 {
 			logger.Log.Info("No deployment history found.")
 			return
+		}
+
+		if historyLimit > 0 && historyLimit < len(results) {
+			results = results[len(results)-historyLimit:]
 		}
 
 		if historyOutputJSON {
@@ -74,6 +79,13 @@ func init() {
 		"json",
 		false,
 		"Print deployment history as JSON",
+	)
+
+	historyCmd.Flags().IntVar(
+		&historyLimit,
+		"limit",
+		0,
+		"Maximum number of deployment history entries to show",
 	)
 
 	rootCmd.AddCommand(historyCmd)
