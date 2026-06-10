@@ -1,9 +1,7 @@
 package cmd
 
 import (
-	"bufio"
-	"os"
-
+	"github.com/ogilcher/lunar-deploy-agent/internal/history"
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
 	"github.com/spf13/cobra"
 )
@@ -14,22 +12,31 @@ var historyCmd = &cobra.Command{
 	Use:   "history",
 	Short: "Show saved deployment history",
 	Run: func(cmd *cobra.Command, args []string) {
-		file, err := os.Open(historyPath)
+		results, err := history.ReadDeploymentHistory(historyPath)
+
 		if err != nil {
-			logger.Log.Errorw("Failed to open deployment history.", "error", err)
+			logger.Log.Errorw(
+				"Failed to read deployment history.",
+				"error", err,
+			)
+
 			return
 		}
 
-		defer file.Close()
-
-		scanner := bufio.NewScanner(file)
-		
-		for scanner.Scan() {
-			logger.Log.Info(scanner.Text())
+		if len(results) == 0 {
+			logger.Log.Info("No deployment history found.")
+			return
 		}
 
-		if err := scanner.Err(); err != nil {
-			logger.Log.Errorw("Failed to read deployment history.", "error", err)
+		for _, result := range results {
+			logger.Log.Infow(
+				"Deployment result.",
+				"deployment", result.DeploymentName,
+				"success", result.Success,
+				"started", result.Started,
+				"finished", result.Finished,
+				"step_count", len(result.StepResults),
+			)
 		}
 	},
 }
