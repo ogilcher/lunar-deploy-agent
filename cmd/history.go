@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/ogilcher/lunar-deploy-agent/internal/deploy/engine"
 	"github.com/ogilcher/lunar-deploy-agent/internal/history"
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
 	"github.com/spf13/cobra"
@@ -12,6 +13,7 @@ import (
 var historyPath string
 var historyOutputJSON bool
 var historyLimit int
+var historyDeploymentFilter string
 
 var historyCmd = &cobra.Command{
 	Use:   "history",
@@ -31,6 +33,21 @@ var historyCmd = &cobra.Command{
 		if len(results) == 0 {
 			logger.Log.Info("No deployment history found.")
 			return
+		}
+
+		if historyDeploymentFilter != "" {
+			filteredResults := []engine.DeploymentResult{}
+
+			for _, result := range results {
+				if result.DeploymentName == historyDeploymentFilter {
+					filteredResults = append(
+						filteredResults,
+						result,
+					)
+				}
+			}
+
+			results = filteredResults
 		}
 
 		if historyLimit > 0 && historyLimit < len(results) {
@@ -86,6 +103,13 @@ func init() {
 		"limit",
 		0,
 		"Maximum number of deployment history entries to show",
+	)
+
+	historyCmd.Flags().StringVar(
+		&historyDeploymentFilter,
+		"deployment",
+		"",
+		"Filter deployment history by deployment name",
 	)
 
 	rootCmd.AddCommand(historyCmd)
