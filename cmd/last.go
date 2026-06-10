@@ -1,9 +1,7 @@
 package cmd
 
 import (
-	"bufio"
-	"os"
-
+	"github.com/ogilcher/lunar-deploy-agent/internal/history"
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
 	"github.com/spf13/cobra"
 )
@@ -14,33 +12,34 @@ var lastCmd = &cobra.Command{
 	Use:   "last",
 	Short: "Show the most recent deployment result",
 	Run: func(cmd *cobra.Command, args []string) {
-		file, err := os.Open(lastHistoryPath)
+		results, err := history.ReadDeploymentHistory(
+			lastHistoryPath,
+		)
+
 		if err != nil {
-			logger.Log.Errorw("Failed to open deployment history.", "error", err)
+			logger.Log.Errorw(
+				"Failed to read deployment history.",
+				"error", err,
+			)
+
 			return
 		}
 
-		defer file.Close()
-
-		scanner := bufio.NewScanner(file)
-
-		lastLine := ""
-
-		for scanner.Scan() {
-			lastLine = scanner.Text()
-		}
-
-		if err := scanner.Err(); err != nil {
-			logger.Log.Errorw("Failed to read deployment history.", "error", err)
-			return
-		}
-
-		if lastLine == "" {
+		if len(results) == 0 {
 			logger.Log.Info("No deployment history found.")
 			return
 		}
 
-		logger.Log.Info(lastLine)
+		lastResult := results[len(results)-1]
+
+		logger.Log.Infow(
+			"Last deployment result.",
+			"deployment", lastResult,
+			"success", lastResult.Success,
+			"started", lastResult.Started,
+			"finished", lastResult.Finished,
+			"step_count", len(lastResult.StepResults),
+		)
 	},
 }
 
