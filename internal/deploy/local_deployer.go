@@ -2,7 +2,7 @@ package deploy
 
 import (
 	"github.com/ogilcher/lunar-deploy-agent/internal/config"
-	context2 "github.com/ogilcher/lunar-deploy-agent/internal/deploy/context"
+	deploycontext "github.com/ogilcher/lunar-deploy-agent/internal/deploy/context"
 	"github.com/ogilcher/lunar-deploy-agent/internal/deploy/engine"
 	steps2 "github.com/ogilcher/lunar-deploy-agent/internal/deploy/steps"
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
@@ -11,6 +11,8 @@ import (
 // LocalDeployer runs deployment jobs against a locally accessible repository
 type LocalDeployer struct {
 	RepositoryPath string
+	DeploymentName string
+	Environment    string
 	StepConfigs    []config.DeployStepConfig
 }
 
@@ -43,10 +45,10 @@ func (d *LocalDeployer) Deploy() (*engine.DeploymentResult, error) {
 		Steps: steps,
 	}
 
-	context := context2.DeploymentContext{
-		DeploymentName: "local",
+	context := deploycontext.DeploymentContext{
+		DeploymentName: d.DeploymentName,
 		RepositoryPath: d.RepositoryPath,
-		Environment:    "development",
+		Environment:    d.Environment,
 	}
 
 	result, err := job.Run(context)

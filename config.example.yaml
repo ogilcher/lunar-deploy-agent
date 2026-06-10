@@ -4,6 +4,14 @@ workspace_path: "./workspace"
 log_level: "info"
 
 deployments:
+
+  node-pm2-preset-test:
+    repository_path: "."
+    preset: "node_pm2"
+    process_name: "lunar-test-app"
+    health_check_url: "http://localhost:3000"
+    health_check_expected_status: 200
+
   happy-path:
     repository_path: "."
     steps:

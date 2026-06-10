@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/ogilcher/lunar-deploy-agent/cmd/util"
+	"github.com/ogilcher/lunar-deploy-agent/internal/config"
 	"github.com/ogilcher/lunar-deploy-agent/internal/deploy"
 	"github.com/ogilcher/lunar-deploy-agent/internal/events"
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
@@ -67,9 +68,23 @@ var deployCmd = &cobra.Command{
 			}()
 		}
 
+		expandedSteps, err := config.ExpandedDeploymentSteps(deploymentConfig)
+
+		if err != nil {
+			logger.Log.Errorw(
+				"Failed to expand deployment steps.",
+				"deployment", deploymentName,
+				"error", err,
+			)
+
+			return
+		}
+
 		localDeployer := deploy.LocalDeployer{
 			RepositoryPath: deploymentConfig.RepositoryPath,
-			StepConfigs:    deploymentConfig.Steps,
+			DeploymentName: deploymentName,
+			Environment:    appConfig.Environment,
+			StepConfigs:    expandedSteps,
 		}
 
 		result, err := localDeployer.Deploy()

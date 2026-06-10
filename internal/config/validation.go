@@ -24,6 +24,22 @@ func ValidateConfig(appConfig *Config) error {
 			)
 		}
 
+		if deployment.Preset == "node_pm2" {
+			if deployment.ProcessName == "" {
+				return fmt.Errorf(
+					"deployments.%s.process_name is required for node_pm2 preset",
+					deploymentName,
+				)
+			}
+
+			if len(deployment.Steps) > 0 {
+				return fmt.Errorf(
+					"deployments.%s cannot use both preset and manual steps")
+			}
+
+			continue
+		}
+
 		for index, step := range deployment.Steps {
 			if step.Type == "" {
 				return fmt.Errorf(
@@ -119,6 +135,14 @@ func ValidateConfig(appConfig *Config) error {
 				)
 			}
 
+		}
+
+		if deployment.Preset != "" && deployment.Preset != "node_pm2" {
+			return fmt.Errorf(
+				"deployments.%s.preset %q is unsupported",
+				deploymentName,
+				deployment.Preset,
+			)
 		}
 	}
 

@@ -17,8 +17,12 @@ type Config struct {
 
 // DeploymentConfig defines the repository and step configuration used during deployment.
 type DeploymentConfig struct {
-	RepositoryPath string             `yaml:"repository_path"`
-	Steps          []DeployStepConfig `yaml:"steps"`
+	RepositoryPath            string             `yaml:"repository_path"`
+	Preset                    string             `yaml:"preset"`
+	ProcessName               string             `yaml:"process_name"`
+	HealthCheckURL            string             `yaml:"health_check_url"`
+	HealthCheckExpectedStatus int                `yaml:"health_check_expected_status"`
+	Steps                     []DeployStepConfig `yaml:"steps"`
 }
 
 // DeployStepConfig represents a single shell-based deployment step loaded from YAML.
