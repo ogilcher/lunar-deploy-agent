@@ -6,7 +6,6 @@ log_level: "info"
 deployments:
   happy-path:
     repository_path: "."
-
     steps:
       - type: "git_pull"
 
@@ -23,7 +22,6 @@ deployments:
 
   timeout-test:
     repository_path: "."
-
     steps:
       - type: "shell"
         name: "sleep_test"
@@ -34,7 +32,6 @@ deployments:
 
   failure-test:
     repository_path: "."
-
     steps:
       - type: "shell"
         name: "successful_step"
@@ -54,7 +51,6 @@ deployments:
 
   retry-test:
     repository_path: "."
-
     steps:
       - type: "shell"
         name: "retry_failure"
@@ -80,14 +76,12 @@ deployments:
 
   pm2-validation-test:
     repository_path: "."
-
     steps:
       - type: "pm2_restart"
         process_name: "test-app"
 
   pm2-start-test:
     repository_path: "."
-
     steps:
       - type: "pm2_start_or_restart"
         process_name: "test-app"
@@ -100,14 +94,18 @@ deployments:
     steps:
       - type: "pm2_save"
 
+  pm2-status-test:
+    repository_path: "."
+    steps:
+      - type: "pm2_status"
+        process_name: "test-app"
+
   npm-install-test:
     repository_path: "."
-
     steps:
       - type: "npm_install"
 
   npm-build-test:
     repository_path: "."
-
     steps:
       - type: "npm_build"

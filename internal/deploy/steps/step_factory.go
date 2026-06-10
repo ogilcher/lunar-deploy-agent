@@ -56,6 +56,11 @@ func BuildStep(
 	case "pm2_save":
 		return &pm2.PM2SaveStep{}, nil
 
+	case "pm2_status":
+		return &pm2.PM2StatusStep{
+			ProcessName: stepConfig.ProcessName,
+		}, nil
+
 	case "npm_install":
 		return &npm.NPMInstallStep{
 			DirectoryPath: repositoryPath,

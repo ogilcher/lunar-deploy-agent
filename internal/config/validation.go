@@ -67,6 +67,15 @@ func ValidateConfig(appConfig *Config) error {
 					)
 				}
 
+			case "pm2_status":
+				if step.ProcessName == "" {
+					return fmt.Errorf(
+						"deployments.%s.steps[%d].process_name is required",
+						deploymentName,
+						index,
+					)
+				}
+
 			case "http_health_check":
 				if step.URL == "" {
 					return fmt.Errorf(
