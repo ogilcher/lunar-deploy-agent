@@ -74,3 +74,9 @@ deployments:
 
     steps:
       -type: "npm_install"
+
+  case npm-build-test:
+    repository_path: "."
+
+    steps:
+      - type: "npm_build"

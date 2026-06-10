@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/ogilcher/lunar-deploy-agent/internal/config"
+	"github.com/ogilcher/lunar-deploy-agent/internal/deploy/steps/npm"
 )
 
 func BuildStep(
@@ -34,7 +35,12 @@ func BuildStep(
 		}, nil
 
 	case "npm_install":
-		return &NPMInstallStep{
+		return &npm.NPMInstallStep{
+			DirectoryPath: repositoryPath,
+		}, nil
+
+	case "npm_build":
+		return &npm.NPMBuildStep{
 			DirectoryPath: repositoryPath,
 		}, nil
 

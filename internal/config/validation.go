@@ -38,6 +38,7 @@ func ValidateConfig(appConfig *Config) error {
 			// No command validation required.
 			case "git_pull":
 			case "npm_install":
+			case "npm_build":
 
 			case "pm2_restart":
 				if step.ProcessName == "" {
