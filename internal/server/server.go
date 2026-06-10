@@ -41,6 +41,7 @@ func StartServer(address string, configPath string) error {
 	mux.HandleFunc("/status", func(writer http.ResponseWriter, request *http.Request) {
 		handleStatus(writer, request, configPath)
 	})
+	mux.HandleFunc("/history", handleHistory)
 
 	server := http.Server{
 		Addr:    address,
@@ -156,6 +157,30 @@ func handleStatus(
 		HistoryCount: 			len(results),
 		LastDeploymentSuccess: 	lastSuccess,
 	})
+}
+
+func handleHistory(
+	writer http.ResponseWriter,
+	request *http.Request,
+) {
+	if request.Method != http.MethodGet {
+		http.Error(writer, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	results, err := history.ReadDeploymentHistory(".lunar-deploy/history.jsonl")
+
+	if err != nil {
+		if os.IsNotExist(err) {
+			writeJSON(writer, []any{})
+			return
+		}
+
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	writeJSON(writer, results)
 }
 
 func writeJSON(
