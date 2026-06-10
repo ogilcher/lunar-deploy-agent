@@ -3,32 +3,38 @@ package server
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 	"os"
+	"time"
 
-	"github.com/ogilcher/lunar-deploy-agent/internal/history"
 	"github.com/ogilcher/lunar-deploy-agent/internal/config"
+	"github.com/ogilcher/lunar-deploy-agent/internal/deploy"
+	"github.com/ogilcher/lunar-deploy-agent/internal/history"
+	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
 )
 
 type HealthResponse struct {
-	Status 		string 		`json:"status"`
-	Service 	string 		`json:"service"`
-	Timestamp 	time.Time 	`json:"timestamp"`
+	Status    string    `json:"status"`
+	Service   string    `json:"service"`
+	Timestamp time.Time `json:"timestamp"`
 }
 
 type DeploymentListItem struct {
-	Name 			string	`json:"name"`
-	RepositoryPath 	string 	`json:"repository_path"`
-	Preset 			string	`json:"preset"`
-	StepCount		int		`json:"step_count"`
+	Name           string `json:"name"`
+	RepositoryPath string `json:"repository_path"`
+	Preset         string `json:"preset"`
+	StepCount      int    `json:"step_count"`
 }
 
 type AgentStatusResponse struct {
-	ConfigValid			bool	`json:"config_valid"`
-	DeploymentCount 	int 	`json:"deployment_count"`
-	HistoryExists		bool	`json:"history_exists"`
-	HistoryCount		int 	`json:"history_count"`
-	LastDeploymentSuccess bool 	`json:"last_deployment_success"`
+	ConfigValid           bool `json:"config_valid"`
+	DeploymentCount       int  `json:"deployment_count"`
+	HistoryExists         bool `json:"history_exists"`
+	HistoryCount          int  `json:"history_count"`
+	LastDeploymentSuccess bool `json:"last_deployment_success"`
+}
+
+type DeployRequest struct {
+	Deployment string `json:"deployment"`
 }
 
 func StartServer(address string, configPath string) error {
@@ -42,6 +48,9 @@ func StartServer(address string, configPath string) error {
 		handleStatus(writer, request, configPath)
 	})
 	mux.HandleFunc("/history", handleHistory)
+	mux.HandleFunc("/deploy", func(writer http.ResponseWriter, request *http.Request) {
+		handleDeploy(writer, request, configPath)
+	})
 
 	server := http.Server{
 		Addr:    address,
@@ -56,9 +65,9 @@ func handleHealth(
 	request *http.Request,
 ) {
 	response := HealthResponse{
-		Status: 	"OK",
-		Service: 	"lunar-deploy-agent",
-		Timestamp: 	time.Now(),
+		Status:    "OK",
+		Service:   "lunar-deploy-agent",
+		Timestamp: time.Now(),
 	}
 
 	writeJSON(writer, response)
@@ -95,10 +104,10 @@ func handleDeployments(
 		}
 
 		deployments = append(deployments, DeploymentListItem{
-			Name: 			name,
+			Name:           name,
 			RepositoryPath: deployment.RepositoryPath,
-			Preset: 		deployment.Preset,
-			StepCount: 		len(steps),
+			Preset:         deployment.Preset,
+			StepCount:      len(steps),
 		})
 	}
 
@@ -130,11 +139,11 @@ func handleStatus(
 
 	if err != nil {
 		if os.IsNotExist(err) {
-			writeJSON(writer, AgentStatusResponse {
-				ConfigValid: 		true,
-				DeploymentCount: 	len(appConfig.Deployments),
-				HistoryExists: 		false,
-				HistoryCount: 		0,
+			writeJSON(writer, AgentStatusResponse{
+				ConfigValid:     true,
+				DeploymentCount: len(appConfig.Deployments),
+				HistoryExists:   false,
+				HistoryCount:    0,
 			})
 
 			return
@@ -151,11 +160,11 @@ func handleStatus(
 	}
 
 	writeJSON(writer, AgentStatusResponse{
-		ConfigValid: 			true,
-		DeploymentCount: 		len(appConfig.Deployments),
-		HistoryExists: 			true,
-		HistoryCount: 			len(results),
-		LastDeploymentSuccess: 	lastSuccess,
+		ConfigValid:           true,
+		DeploymentCount:       len(appConfig.Deployments),
+		HistoryExists:         true,
+		HistoryCount:          len(results),
+		LastDeploymentSuccess: lastSuccess,
 	})
 }
 
@@ -181,6 +190,79 @@ func handleHistory(
 	}
 
 	writeJSON(writer, results)
+}
+
+func handleDeploy(
+	writer http.ResponseWriter,
+	request *http.Request,
+	configPath string,
+) {
+	if request.Method != http.MethodPost {
+		http.Error(writer, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var deployRequest DeployRequest
+
+	if err := json.NewDecoder(request.Body).Decode(&deployRequest); err != nil {
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if deployRequest.Deployment == "" {
+		http.Error(writer, "deployment is required", http.StatusBadRequest)
+		return
+	}
+
+	appConfig, err := config.LoadConfig(configPath)
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err := config.ValidateConfig(appConfig); err != nil {
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	deploymentConfig, exists := appConfig.Deployments[deployRequest.Deployment]
+	if !exists {
+		http.Error(writer, "deployment not found", http.StatusNotFound)
+		return
+	}
+
+	steps, err := config.ExpandedDeploymentSteps(deploymentConfig)
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	localDeployer := deploy.LocalDeployer{
+		RepositoryPath: deploymentConfig.RepositoryPath,
+		DeploymentName: deployRequest.Deployment,
+		Environment:    appConfig.Environment,
+		StepConfigs:    steps,
+	}
+
+	result, err := localDeployer.Deploy()
+
+	if saveErr := history.SaveDeploymentResult(
+		".lunar-deploy",
+		result,
+	); saveErr != nil {
+		logger.Log.Errorw(
+			"Failed to save deployment history.",
+			"error", saveErr,
+		)
+	}
+
+	if err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+		writeJSON(writer, result)
+		return
+	}
+
+	writeJSON(writer, result)
 }
 
 func writeJSON(
