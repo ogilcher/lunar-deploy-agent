@@ -40,6 +40,23 @@ func ValidateConfig(appConfig *Config) error {
 			case "npm_install":
 			case "npm_build":
 
+			case "pm2_start_or_restart":
+				if step.ProcessName == "" {
+					return fmt.Errorf(
+						"deployments.%s.steps[%d].process_name is required",
+						deploymentName,
+						index,
+					)
+				}
+
+				if step.StartCommand == "" {
+					return fmt.Errorf(
+						"deployments.%s.steps[%d].start_command is required",
+						deploymentName,
+						index,
+					)
+				}
+
 			case "pm2_restart":
 				if step.ProcessName == "" {
 					return fmt.Errorf(

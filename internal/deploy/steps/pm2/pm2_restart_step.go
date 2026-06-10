@@ -1,4 +1,4 @@
-package steps
+package pm2
 
 import (
 	"os/exec"

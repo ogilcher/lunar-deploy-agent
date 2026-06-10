@@ -5,6 +5,7 @@ import (
 
 	"github.com/ogilcher/lunar-deploy-agent/internal/config"
 	"github.com/ogilcher/lunar-deploy-agent/internal/deploy/steps/npm"
+	"github.com/ogilcher/lunar-deploy-agent/internal/deploy/steps/pm2"
 )
 
 func BuildStep(
@@ -30,8 +31,16 @@ func BuildStep(
 		}, nil
 
 	case "pm2_restart":
-		return &PM2RestartStep{
+		return &pm2.PM2RestartStep{
 			ProcessName: stepConfig.ProcessName,
+		}, nil
+
+	case "pm2_start_or_restart":
+		return &pm2.PM2StartOrRestartStep{
+			ProcessName:   stepConfig.ProcessName,
+			StartCommand:  stepConfig.StartCommand,
+			Arguments:     stepConfig.Arguments,
+			DirectoryPath: repositoryPath,
 		}, nil
 
 	case "npm_install":
