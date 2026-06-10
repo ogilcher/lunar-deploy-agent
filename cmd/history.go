@@ -16,6 +16,13 @@ var historyLimit int
 var historyDeploymentFilter string
 var historySummary bool
 
+type HistorySummary struct {
+	Total       int     `json:"total"`
+	Successful  int     `json:"successful"`
+	Failed      int     `json:"failed"`
+	SuccessRate float64 `json:"success_rate"`
+}
+
 var historyCmd = &cobra.Command{
 	Use:   "history",
 	Short: "Show saved deployment history",
@@ -56,28 +63,34 @@ var historyCmd = &cobra.Command{
 		}
 
 		if historySummary {
-			total := len(results)
-			successful := 0
+			summary := buildHistorySummary(results)
 
-			for _, result := range results {
-				if result.Success {
-					successful++
+			if historyOutputJSON {
+				summaryJSON, err := json.MarshalIndent(
+					summary,
+					"",
+					"  ",
+				)
+
+				if err != nil {
+					logger.Log.Errorw(
+						"Failed to serialize deployment history summary.",
+						"error", err,
+					)
+
+					return
 				}
-			}
 
-			failed := total - successful
-			successRate := 0.0
-
-			if total > 0 {
-				successRate = float64(successful) / float64(total) * 100
+				fmt.Println(string(summaryJSON))
+				return
 			}
 
 			logger.Log.Infow(
 				"Deployment history summary.",
-				"total", total,
-				"successful", successful,
-				"failed", failed,
-				"success_rate", successRate,
+				"total", summary.Total,
+				"successful", summary.Successful,
+				"failed", summary.Failed,
+				"success_rate", summary.SuccessRate,
 			)
 
 			return
@@ -149,4 +162,31 @@ func init() {
 	)
 
 	rootCmd.AddCommand(historyCmd)
+}
+
+func buildHistorySummary(
+	results []engine.DeploymentResult,
+) HistorySummary {
+	total := len(results)
+	successful := 0
+
+	for _, result := range results {
+		if result.Success {
+			successful++
+		}
+	}
+
+	failed := total - successful
+	successRate := 0.0
+
+	if total > 0 {
+		successRate = float64(successful) / float64(total) * 100
+	}
+
+	return HistorySummary{
+		Total:       total,
+		Successful:  successful,
+		Failed:      failed,
+		SuccessRate: successRate,
+	}
 }
