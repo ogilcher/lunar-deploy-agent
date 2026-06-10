@@ -68,3 +68,9 @@ deployments:
     steps:
       - type: "pm2_restart"
         process_name: "test-app"
+
+  case npm-install-test:
+    repository_path: "."
+
+    steps:
+      -type: "npm_install"

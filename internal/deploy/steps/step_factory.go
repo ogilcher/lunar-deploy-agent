@@ -16,11 +16,6 @@ func BuildStep(
 			RepositoryPath: repositoryPath,
 		}, nil
 
-	case "pm2_restart":
-		return &PM2RestartStep{
-			ProcessName: stepConfig.ProcessName,
-		}, nil
-
 	case "shell":
 		return &ShellCommandStep{
 			StepName:          stepConfig.Name,
@@ -31,6 +26,16 @@ func BuildStep(
 			WorkingDirectory:  stepConfig.WorkingDirectory,
 			Retries:           stepConfig.Retries,
 			RetryDelaySeconds: stepConfig.RetryDelaySeconds,
+		}, nil
+
+	case "pm2_restart":
+		return &PM2RestartStep{
+			ProcessName: stepConfig.ProcessName,
+		}, nil
+
+	case "npm_install":
+		return &NPMInstallStep{
+			DirectoryPath: repositoryPath,
 		}, nil
 
 	default:

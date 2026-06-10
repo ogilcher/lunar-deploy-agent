@@ -34,9 +34,10 @@ func ValidateConfig(appConfig *Config) error {
 			}
 
 			switch step.Type {
+			// Native internal deployment steps.
+			// No command validation required.
 			case "git_pull":
-				// Native internal deployment step.
-				// No command validation required.
+			case "npm_install":
 
 			case "pm2_restart":
 				if step.ProcessName == "" {
