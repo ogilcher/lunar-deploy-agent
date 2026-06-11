@@ -9,6 +9,7 @@ import (
 	"github.com/ogilcher/lunar-deploy-agent/internal/config"
 	"github.com/ogilcher/lunar-deploy-agent/internal/deploy"
 	"github.com/ogilcher/lunar-deploy-agent/internal/history"
+	"github.com/ogilcher/lunar-deploy-agent/internal/jobs"
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
 )
 
@@ -59,6 +60,9 @@ func StartServer(address string, configPath string) error {
 	)
 
 	mux.HandleFunc("/events", handleEventsWebSocket)
+
+	mux.HandleFunc("/jobs", handleJobs)
+	mux.HandleFunc("/jobs/", handleJobByID)
 
 	server := http.Server{
 		Addr:    address,
@@ -245,32 +249,73 @@ func handleDeploy(
 		return
 	}
 
-	localDeployer := deploy.LocalDeployer{
-		RepositoryPath: deploymentConfig.RepositoryPath,
-		DeploymentName: deployRequest.Deployment,
-		Environment:    appConfig.Environment,
-		StepConfigs:    steps,
-	}
+	job := jobs.GlobalStore.CreateJob(deployRequest.Deployment)
 
-	result, err := localDeployer.Deploy()
+	go func() {
+		jobs.GlobalStore.MarkRunning(job.ID)
 
-	if saveErr := history.SaveDeploymentResult(
-		".lunar-deploy",
-		result,
-	); saveErr != nil {
-		logger.Log.Errorw(
-			"Failed to save deployment history.",
-			"error", saveErr,
-		)
-	}
+		localDeployer := deploy.LocalDeployer{
+			RepositoryPath: deploymentConfig.RepositoryPath,
+			DeploymentName: deployRequest.Deployment,
+			Environment:    appConfig.Environment,
+			StepConfigs:    steps,
+		}
 
-	if err != nil {
-		writer.WriteHeader(http.StatusInternalServerError)
-		writeJSON(writer, result)
+		result, err := localDeployer.Deploy()
+
+		if saveErr := history.SaveDeploymentResult(
+			".lunar-deploy",
+			result,
+		); saveErr != nil {
+			logger.Log.Errorw(
+				"Failed to save deployment history.",
+				"error", saveErr,
+			)
+		}
+
+		if err != nil {
+			jobs.GlobalStore.MarkFailed(job.ID, result, err)
+			return
+		}
+
+		jobs.GlobalStore.MarkSucceeded(job.ID, result)
+	}()
+
+	writer.WriteHeader(http.StatusAccepted)
+	writeJSON(writer, job)
+}
+
+func handleJobs(
+	writer http.ResponseWriter,
+	request *http.Request,
+) {
+	if request.Method != http.MethodGet {
+		http.Error(writer, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	writeJSON(writer, result)
+	writeJSON(writer, jobs.GlobalStore.ListJobs())
+}
+
+func handleJobByID(
+	writer http.ResponseWriter,
+	request *http.Request,
+) {
+	if request.Method != http.MethodGet {
+		http.Error(writer, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	id := request.URL.Path[len("/jobs/"):]
+
+	job, exists := jobs.GlobalStore.GetJob(id)
+
+	if !exists {
+		http.Error(writer, "job not found", http.StatusNotFound)
+		return
+	}
+
+	writeJSON(writer, job)
 }
 
 func writeJSON(
