@@ -51,7 +51,12 @@ func StartServer(address string, configPath string) error {
 	mux.HandleFunc("/deploy", func(writer http.ResponseWriter, request *http.Request) {
 		handleDeploy(writer, request, configPath)
 	})
+
 	mux.HandleFunc("/openapi.yaml", handleOpenAPI)
+	mux.Handle(
+		"/swagger/",
+		SwaggerHandler(),
+	)
 
 	server := http.Server{
 		Addr:    address,

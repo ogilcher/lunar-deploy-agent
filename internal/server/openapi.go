@@ -24,25 +24,25 @@ info:
 
 paths:
   /health:
-	get:
-	  summary: Check agent health
-	  responses:
-		"200":
-		  description: Agent is healthy
+    get:
+      summary: Check agent health
+      responses:
+        "200":
+          description: Agent is healthy
 
   /status:
-	get:
-	  summary: Get local agent status
+    get:
+      summary: Get local agent status
       responses:
-		"200":
-		  description: Agent status response
+        "200":
+          description: Agent status response
 
   /deployments:
-	get:
-	  summary: List configured deployments
-	  responses:
-		"200":
-		  description: Configured deployments
+    get:
+      summary: List configured deployments
+      responses:
+        "200":
+          description: Configured deployments
 
   /history:
     get:
@@ -55,8 +55,8 @@ paths:
     post:
       summary: Trigger a deployment
       requestBody:
-		required: true
-		content:
+        required: true
+        content:
           application/json:
             schema:
               type: object
