@@ -332,12 +332,33 @@ func handleJobByID(
 	writer http.ResponseWriter,
 	request *http.Request,
 ) {
+	id := request.URL.Path[len("/jobs/"):]
+
+	if id == "" {
+		http.Error(writer, "job id is required", http.StatusBadRequest)
+		return
+	}
+
+	if request.Method == http.MethodDelete {
+		cancelled := jobs.GlobalStore.MarkCancelled(id)
+
+		if !cancelled {
+			http.Error(writer, "job could not be cancelled", http.StatusBadRequest)
+			return
+		}
+
+		writeJSON(writer, map[string]string{
+			"status": "cancelled",
+			"id":     id,
+		})
+
+		return
+	}
+
 	if request.Method != http.MethodGet {
 		http.Error(writer, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-
-	id := request.URL.Path[len("/jobs/"):]
 
 	job, exists := jobs.GlobalStore.GetJob(id)
 

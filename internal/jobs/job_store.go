@@ -102,3 +102,22 @@ func (s *Store) MarkFailed(
 		}
 	}
 }
+
+func (s *Store) MarkCancelled(id string) bool {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	job, exists := s.jobs[id]
+	if !exists {
+		return false
+	}
+
+	if job.Status == JobSucceeded || job.Status == JobFailed {
+		return false
+	}
+
+	job.Status = JobCancelled
+	job.FinishedAt = new(time.Now())
+
+	return true
+}

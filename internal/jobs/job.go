@@ -13,6 +13,7 @@ const (
 	JobRunning   JobStatus = "running"
 	JobSucceeded JobStatus = "succeeded"
 	JobFailed    JobStatus = "failed"
+	JobCancelled JobStatus = "cancelled"
 )
 
 type DeploymentJob struct {
