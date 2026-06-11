@@ -72,6 +72,21 @@ paths:
           description: Deployment job
         "404":
           description: Job not found
+    delete:
+      summary: Cancel a deployment job
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Job cancelled
+        "400":
+          description: Job could not be cancelled
+        "404":
+          description: Job not found
 
   /events:
     get:

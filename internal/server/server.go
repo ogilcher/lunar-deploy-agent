@@ -347,6 +347,12 @@ func handleJobByID(
 			return
 		}
 
+		events.GlobalEventBus.Publish(events.DeploymentEvent{
+			Type:      "job_cancelled",
+			JobID:     id,
+			Message:   "Deployment job cancelled.",
+			Timestamp: time.Now(),
+		})
 		writeJSON(writer, map[string]string{
 			"status": "cancelled",
 			"id":     id,
