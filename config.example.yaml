@@ -36,7 +36,7 @@ deployments:
         command: "sleep"
         arguments:
           - "10"
-        timeout_seconds: 2
+        timeout_seconds: 30
 
   failure-test:
     repository_path: "."

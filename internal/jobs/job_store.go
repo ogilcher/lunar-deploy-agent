@@ -121,3 +121,16 @@ func (s *Store) MarkCancelled(id string) bool {
 
 	return true
 }
+
+func (s *Store) IsCancelled(id string) bool {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+
+	job, exists := s.jobs[id]
+
+	if !exists {
+		return false
+	}
+
+	return job.Status == JobCancelled
+}

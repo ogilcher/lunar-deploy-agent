@@ -261,6 +261,10 @@ func handleDeploy(
 	})
 
 	go func() {
+		if jobs.GlobalStore.IsCancelled(job.ID) {
+			return
+		}
+
 		jobs.GlobalStore.MarkRunning(job.ID)
 		events.GlobalEventBus.Publish(events.DeploymentEvent{
 			Type:       "job_running",
