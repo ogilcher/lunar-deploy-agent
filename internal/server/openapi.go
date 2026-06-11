@@ -51,6 +51,35 @@ paths:
         "200":
           description: Deployment history
 
+  /jobs:
+    get:
+      summary: List deployment jobs
+      responses:
+        "200":
+          description: Deployment jobs
+
+  /jobs/{id}:
+    get:
+      summary: Get a deployment job by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deployment job
+        "404":
+          description: Job not found
+
+  /events:
+    get:
+      summary: Stream deployment events over WebSocket
+      responses:
+        "101":
+          description: WebSocket connection established
+
   /deploy:
     post:
       summary: Trigger a deployment
@@ -68,6 +97,8 @@ paths:
       responses:
         "200":
           description: Deployment completed
+        "202":
+          description: Deployment job queued
         "500":
           description: Deployment failed
 `
