@@ -10,4 +10,5 @@ type DeploymentEvent struct {
 	Message              string    `json:"message"`
 	Timestamp            time.Time `json:"timestamp"`
 	DurationMilliseconds int64     `json:"duration_milliseconds,omitempty"`
+	JobID                string    `json:"job_id,omitempty"`
 }

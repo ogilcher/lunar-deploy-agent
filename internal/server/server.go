@@ -8,6 +8,7 @@ import (
 
 	"github.com/ogilcher/lunar-deploy-agent/internal/config"
 	"github.com/ogilcher/lunar-deploy-agent/internal/deploy"
+	"github.com/ogilcher/lunar-deploy-agent/internal/events"
 	"github.com/ogilcher/lunar-deploy-agent/internal/history"
 	"github.com/ogilcher/lunar-deploy-agent/internal/jobs"
 	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
@@ -251,8 +252,23 @@ func handleDeploy(
 
 	job := jobs.GlobalStore.CreateJob(deployRequest.Deployment)
 
+	events.GlobalEventBus.Publish(events.DeploymentEvent{
+		Type:       "job_queued",
+		JobID:      job.ID,
+		Deployment: deployRequest.Deployment,
+		Message:    "Deployment job queued.",
+		Timestamp:  time.Now(),
+	})
+
 	go func() {
 		jobs.GlobalStore.MarkRunning(job.ID)
+		events.GlobalEventBus.Publish(events.DeploymentEvent{
+			Type:       "job_running",
+			JobID:      job.ID,
+			Deployment: deployRequest.Deployment,
+			Message:    "Deployment job started.",
+			Timestamp:  time.Now(),
+		})
 
 		localDeployer := deploy.LocalDeployer{
 			RepositoryPath: deploymentConfig.RepositoryPath,
@@ -275,10 +291,25 @@ func handleDeploy(
 
 		if err != nil {
 			jobs.GlobalStore.MarkFailed(job.ID, result, err)
+			events.GlobalEventBus.Publish(events.DeploymentEvent{
+				Type:       "job_failed",
+				JobID:      job.ID,
+				Deployment: deployRequest.Deployment,
+				Message:    err.Error(),
+				Timestamp:  time.Now(),
+			})
+
 			return
 		}
 
 		jobs.GlobalStore.MarkSucceeded(job.ID, result)
+		events.GlobalEventBus.Publish(events.DeploymentEvent{
+			Type:       "job_succeeded",
+			JobID:      job.ID,
+			Deployment: deployRequest.Deployment,
+			Message:    "Deployment job succeeded.",
+			Timestamp:  time.Now(),
+		})
 	}()
 
 	writer.WriteHeader(http.StatusAccepted)
