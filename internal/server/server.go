@@ -7,11 +7,9 @@ import (
 	"time"
 
 	"github.com/ogilcher/lunar-deploy-agent/internal/config"
-	"github.com/ogilcher/lunar-deploy-agent/internal/deploy"
 	"github.com/ogilcher/lunar-deploy-agent/internal/events"
 	"github.com/ogilcher/lunar-deploy-agent/internal/history"
 	"github.com/ogilcher/lunar-deploy-agent/internal/jobs"
-	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
 )
 
 type HealthResponse struct {
@@ -69,6 +67,8 @@ func StartServer(address string, configPath string) error {
 		Addr:    address,
 		Handler: mux,
 	}
+
+	StartDeploymentWorker(configPath)
 
 	return server.ListenAndServe()
 }
@@ -238,15 +238,8 @@ func handleDeploy(
 		return
 	}
 
-	deploymentConfig, exists := appConfig.Deployments[deployRequest.Deployment]
-	if !exists {
+	if _, exists := appConfig.Deployments[deployRequest.Deployment]; !exists {
 		http.Error(writer, "deployment not found", http.StatusNotFound)
-		return
-	}
-
-	steps, err := config.ExpandedDeploymentSteps(deploymentConfig)
-	if err != nil {
-		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -260,61 +253,7 @@ func handleDeploy(
 		Timestamp:  time.Now(),
 	})
 
-	go func() {
-		if jobs.GlobalStore.IsCancelled(job.ID) {
-			return
-		}
-
-		jobs.GlobalStore.MarkRunning(job.ID)
-		events.GlobalEventBus.Publish(events.DeploymentEvent{
-			Type:       "job_running",
-			JobID:      job.ID,
-			Deployment: deployRequest.Deployment,
-			Message:    "Deployment job started.",
-			Timestamp:  time.Now(),
-		})
-
-		localDeployer := deploy.LocalDeployer{
-			RepositoryPath: deploymentConfig.RepositoryPath,
-			DeploymentName: deployRequest.Deployment,
-			Environment:    appConfig.Environment,
-			StepConfigs:    steps,
-		}
-
-		result, err := localDeployer.Deploy()
-
-		if saveErr := history.SaveDeploymentResult(
-			".lunar-deploy",
-			result,
-		); saveErr != nil {
-			logger.Log.Errorw(
-				"Failed to save deployment history.",
-				"error", saveErr,
-			)
-		}
-
-		if err != nil {
-			jobs.GlobalStore.MarkFailed(job.ID, result, err)
-			events.GlobalEventBus.Publish(events.DeploymentEvent{
-				Type:       "job_failed",
-				JobID:      job.ID,
-				Deployment: deployRequest.Deployment,
-				Message:    err.Error(),
-				Timestamp:  time.Now(),
-			})
-
-			return
-		}
-
-		jobs.GlobalStore.MarkSucceeded(job.ID, result)
-		events.GlobalEventBus.Publish(events.DeploymentEvent{
-			Type:       "job_succeeded",
-			JobID:      job.ID,
-			Deployment: deployRequest.Deployment,
-			Message:    "Deployment job succeeded.",
-			Timestamp:  time.Now(),
-		})
-	}()
+	jobs.GlobalQueue.Enqueue(job)
 
 	writer.WriteHeader(http.StatusAccepted)
 	writeJSON(writer, job)
