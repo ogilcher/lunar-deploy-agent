@@ -58,6 +58,8 @@ func StartServer(address string, configPath string) error {
 		SwaggerHandler(),
 	)
 
+	mux.HandleFunc("/events", handleEventsWebSocket)
+
 	server := http.Server{
 		Addr:    address,
 		Handler: mux,
