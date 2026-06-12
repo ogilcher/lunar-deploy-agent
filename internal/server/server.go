@@ -63,6 +63,8 @@ func StartServer(address string, configPath string) error {
 	mux.HandleFunc("/jobs", handleJobs)
 	mux.HandleFunc("/jobs/", handleJobByID)
 
+	mux.HandleFunc("/queue", handleQueue)
+
 	server := http.Server{
 		Addr:    address,
 		Handler: mux,
@@ -317,6 +319,18 @@ func handleJobByID(
 	}
 
 	writeJSON(writer, job)
+}
+
+func handleQueue(
+	writer http.ResponseWriter,
+	request *http.Request,
+) {
+	if request.Method != http.MethodGet {
+		http.Error(writer, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	writeJSON(writer, jobs.GlobalStore.Summary())
 }
 
 func writeJSON(

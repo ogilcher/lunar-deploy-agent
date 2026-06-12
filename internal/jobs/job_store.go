@@ -13,6 +13,41 @@ type Store struct {
 	mutex sync.RWMutex
 }
 
+type Summary struct {
+	Queued    int `json:"queued"`
+	Running   int `json:"running"`
+	Succeeded int `json:"succeeded"`
+	Failed    int `json:"failed"`
+	Cancelled int `json:"cancelled"`
+	Total     int `json:"total"`
+}
+
+func (s *Store) Summary() Summary {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+
+	summary := Summary{}
+
+	for _, job := range s.jobs {
+		summary.Total++
+
+		switch job.Status {
+		case JobQueued:
+			summary.Queued++
+		case JobRunning:
+			summary.Running++
+		case JobSucceeded:
+			summary.Succeeded++
+		case JobFailed:
+			summary.Failed++
+		case JobCancelled:
+			summary.Cancelled++
+		}
+	}
+
+	return summary
+}
+
 func NewStore() *Store {
 	return &Store{
 		jobs: map[string]*DeploymentJob{},
