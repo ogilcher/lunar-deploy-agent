@@ -5,17 +5,18 @@ import (
 	"runtime"
 
 	"github.com/ogilcher/lunar-deploy-agent/internal/config"
+	"github.com/ogilcher/lunar-deploy-agent/internal/version"
 )
 
 type NodeInfoResponse struct {
-	NodeID 			string 	 `json:"node_id"`
-	NodeName 		string 	 `json:"node_name"`
-	NodeRegion 		string 	 `json:"node_region"`
-	Service			string 	 `json:"service"`
-	Version			string 	 `json:"version"`
-	OperatingSystem string 	 `json:"operating_system"`
-	Architecture	string 	 `json:"architecture"`
-	Capabilities 	[]string `json:"capabilities"`
+	NodeID          string   `json:"node_id"`
+	NodeName        string   `json:"node_name"`
+	NodeRegion      string   `json:"node_region"`
+	Service         string   `json:"service"`
+	Version         string   `json:"version"`
+	OperatingSystem string   `json:"operating_system"`
+	Architecture    string   `json:"architecture"`
+	Capabilities    []string `json:"capabilities"`
 }
 
 func handleNodeInfo(
@@ -35,13 +36,13 @@ func handleNodeInfo(
 	}
 
 	writeJSON(writer, NodeInfoResponse{
-		NodeID: 			appConfig.NodeID,
-		NodeName: 			appConfig.NodeName,
-		NodeRegion: 		appConfig.NodeRegion,
-		Service: 			"lunar-deploy-agent",
-		Version: 			"0.2.0",
-		OperatingSystem: 	runtime.GOOS,
-		Architecture: 		runtime.GOARCH,
+		NodeID:          appConfig.NodeID,
+		NodeName:        appConfig.NodeName,
+		NodeRegion:      appConfig.NodeRegion,
+		Service:         "lunar-deploy-agent",
+		Version:         version.AgentVersion,
+		OperatingSystem: runtime.GOOS,
+		Architecture:    runtime.GOARCH,
 		Capabilities: []string{
 			"git_pull",
 			"shell",

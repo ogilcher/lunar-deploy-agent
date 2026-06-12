@@ -6,6 +6,7 @@ import (
 
 	"github.com/ogilcher/lunar-deploy-agent/internal/config"
 	"github.com/ogilcher/lunar-deploy-agent/internal/jobs"
+	"github.com/ogilcher/lunar-deploy-agent/internal/version"
 )
 
 var serverStartedAt = time.Now()
@@ -46,7 +47,7 @@ func handleHeartbeat(
 		NodeName:      appConfig.NodeName,
 		NodeRegion:    appConfig.NodeRegion,
 		Service:       "lunar-deploy-agent",
-		Version:       "0.2.0",
+		Version:       version.AgentVersion,
 		Status:        "online",
 		StartedAt:     serverStartedAt,
 		Timestamp:     now,

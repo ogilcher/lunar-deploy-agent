@@ -3,16 +3,15 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/ogilcher/lunar-deploy-agent/internal/version"
 	"github.com/spf13/cobra"
 )
-
-const kAgentVersion = "0.2.0"
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the Lunar Deploy Agent version",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Lunar Deploy Agent v%s\n", kAgentVersion)
+		fmt.Printf("Lunar Deploy Agent v%s\n", version.AgentVersion)
 	},
 }
 
