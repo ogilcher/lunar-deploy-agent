@@ -50,7 +50,16 @@ func StartServer(address string, configPath string) error {
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/health", handleHealth)
+	mux.HandleFunc("/health", func(
+		writer http.ResponseWriter,
+		request *http.Request,
+	) {
+		handleHealth(
+			writer,
+			request,
+			configPath,
+		)
+	})
 	mux.HandleFunc("/openapi.yaml", handleOpenAPI)
 	mux.Handle("/swagger/", SwaggerHandler())
 
@@ -97,13 +106,17 @@ func StartServer(address string, configPath string) error {
 func handleHealth(
 	writer http.ResponseWriter,
 	request *http.Request,
+	configPath string,
 ) {
 	if request.Method != http.MethodGet {
 		http.Error(writer, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	writeJSON(writer, health.RunChecks())
+	writeJSON(
+		writer,
+		health.RunChecks(configPath),
+	)
 }
 
 func handleDeployments(

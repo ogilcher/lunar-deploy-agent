@@ -1,6 +1,8 @@
 package health
 
-func RunChecks() Report {
+func RunChecks(
+	configPath string,
+) Report {
 	registry := NewRegistry()
 
 	registry.Register(
@@ -13,6 +15,12 @@ func RunChecks() Report {
 
 	registry.Register(
 		&GitCheck{},
+	)
+
+	registry.Register(
+		&ConfigCheck{
+			ConfigPath: configPath,
+		},
 	)
 
 	return registry.Run()
