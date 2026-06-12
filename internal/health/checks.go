@@ -29,5 +29,9 @@ func RunChecks(
 		},
 	)
 
+	registry.Register(
+		&MemoryCheck{},
+	)
+
 	return registry.Run()
 }
