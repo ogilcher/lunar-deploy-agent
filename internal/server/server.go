@@ -8,6 +8,7 @@ import (
 
 	"github.com/ogilcher/lunar-deploy-agent/internal/config"
 	"github.com/ogilcher/lunar-deploy-agent/internal/events"
+	"github.com/ogilcher/lunar-deploy-agent/internal/health"
 	"github.com/ogilcher/lunar-deploy-agent/internal/history"
 	"github.com/ogilcher/lunar-deploy-agent/internal/jobs"
 )
@@ -97,13 +98,12 @@ func handleHealth(
 	writer http.ResponseWriter,
 	request *http.Request,
 ) {
-	response := HealthResponse{
-		Status:    "OK",
-		Service:   "lunar-deploy-agent",
-		Timestamp: time.Now(),
+	if request.Method != http.MethodGet {
+		http.Error(writer, "method not allowed", http.StatusMethodNotAllowed)
+		return
 	}
 
-	writeJSON(writer, response)
+	writeJSON(writer, health.RunChecks())
 }
 
 func handleDeployments(
