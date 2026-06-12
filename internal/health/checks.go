@@ -11,5 +11,9 @@ func RunChecks() Report {
 		&PM2Check{},
 	)
 
+	registry.Register(
+		&GitCheck{},
+	)
+
 	return registry.Run()
 }
