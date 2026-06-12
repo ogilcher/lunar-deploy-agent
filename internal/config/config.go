@@ -10,6 +10,9 @@ import (
 type Config struct {
 	AgentID       string                      `yaml:"agent_id"`
 	APIToken      string                      `yaml:"api_token"`
+	NodeID        string                      `yaml:"node_id"`
+	NodeName      string                      `yaml:"node_name"`
+	NodeRegion    string                      `yaml:"node_region"`
 	Environment   string                      `yaml:"environment"`
 	WorkspacePath string                      `yaml:"workspace_path"`
 	LogLevel      string                      `yaml:"log_level"`

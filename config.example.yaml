@@ -1,5 +1,8 @@
 agent_id: "local-dev-agent"
 api_token: "local-dev-token"
+node_id: "local-dev-node"
+node_name: "Local Development Agent"
+node_region: "local"
 environment: "development"
 workspace_path: "./workspace"
 log_level: "info"
