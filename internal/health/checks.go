@@ -33,5 +33,11 @@ func RunChecks(
 		&MemoryCheck{},
 	)
 
+	registry.Register(
+		&CapabilitiesCheck{
+			ConfigPath: configPath,
+		},
+	)
+
 	return registry.Run()
 }
