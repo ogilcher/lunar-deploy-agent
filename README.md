@@ -1,75 +1,194 @@
 # Lunar Deploy Agent
 
-Lunar Deploy Agent is a lightweight deployment orchestration agent written in Go.
+A lightweight deployment orchestration agent written in Go.
 
-The project is part of the larger Lunar Deploy Control ecosystem used to automate deployments, health monitoring,
-environment management, and infrastructure operations for multi-tenant web platforms.
+Lunar Deploy Agent can execute deployment pipelines, expose deployment APIs, stream deployment events in real-time, manage deployment queues, monitor node health, and integrate with process managers such as PM2.
 
-## Goals
+---
 
-- Lightweight and fast
-- Self-hostable
-- Cross-platform
-- Secure deployment execution
-- Real-time deployment logging
-- Infrastructure health reporting
-- Container and process management
-- Git-based deployment workflows
+## Features
 
-## Planned Features
+### Deployment Engine
 
-- CLI command system
-- Deployment execution engine
-- Health monitoring
-- WebSocket communication
-- Secure agent registration
-- Multi-environment support
-- Rollback support
-- Docker integration
-- GitHub Actions integration
-- Vercel deployment hooks
-- Structured logging
-- Metrics and telemetry
+* Config-driven deployments
+* Step-based execution pipeline
+* Retry support
+* Deployment history tracking
+* Deployment result reporting
 
-## Current Status
+### Deployment Steps
 
-Early development.
+* Git Pull
+* Shell Commands
+* NPM Install
+* NPM Build
+* PM2 Restart
+* PM2 Start or Restart
+* PM2 Save
+* PM2 Status
+* HTTP Health Checks
 
-Current functionality:
-- Basic CLI entry point
-- Go project structure initialized
+### HTTP API
 
-## Project Structure
+* Deployment execution
+* Deployment history
+* Job management
+* Queue visibility
+* Node metadata
+* Health reporting
+
+### Real-Time Events
+
+* WebSocket event streaming
+* Deployment lifecycle events
+* Job lifecycle events
+* Step lifecycle events
+
+### Health Monitoring
+
+* Queue health
+* Git health
+* PM2 health
+* Configuration validation
+* Disk space monitoring
+* Memory monitoring
+* Capability validation
+* Uptime reporting
+
+### Documentation
+
+* OpenAPI Specification
+* Swagger UI
+
+---
+
+## Architecture
+
+See:
 
 ```txt
-cmd/
-    lunar-agent/
-        main.go
-        
-internal/
-    config/
-    deploy/
-    health/
-    logger/
+docs/architecture.md
 ```
 
-## Running the Project
+---
+
+## Installation
+
+### Requirements
+
+* Go 1.20+
+* Git
+* Node.js (optional)
+* PM2 (optional)
+
+### Clone
 
 ```bash
-go run ./cmd/lunar-agent
+git clone https://github.com/ogilcher/lunar-deploy-agent.git
+
+cd lunar-deploy-agent
 ```
 
-## Requirements
+### Build
 
-- Go 1.24+ recommended
+```bash
+go build ./cmd/lunar-agent
+```
 
-## Vision
+### Run
 
-Lunar Deploy Agent is intended to become a reusable, production-grade deployment agent suitable for:
+```bash
+./lunar-agent serve
+```
 
-- Personal infrastructure
-- Startup operations
-- Contractor deployments
-- Internal platform tooling
-- Edge/server deployments
-- Self-hosted environments
+---
+
+## Example Configurations
+
+Examples are available in:
+
+```txt
+examples/
+```
+
+Available examples:
+
+```txt
+config.basic.yaml
+config.node-pm2.yaml
+config.manual-pipeline.yaml
+```
+
+---
+
+## API Documentation
+
+Start the server:
+
+```bash
+go run ./cmd/lunar-agent serve
+```
+
+Swagger UI:
+
+```txt
+http://localhost:8080/swagger/index.html
+```
+
+OpenAPI Spec:
+
+```txt
+http://localhost:8080/openapi.yaml
+```
+
+---
+
+## Authentication
+
+Protected endpoints require:
+
+```http
+Authorization: Bearer <token>
+```
+
+Configured through:
+
+```yaml
+api_token: "your-token"
+```
+
+---
+
+## Versioning
+
+This project follows Semantic Versioning.
+
+Examples:
+
+```txt
+v0.3.0
+v1.0.0
+v1.1.0
+```
+
+---
+
+## Roadmap
+
+### v1.x
+
+* Process cancellation
+* Rollback support
+* Persistent queue
+
+### v2.x
+
+* Multi-node orchestration
+* Distributed deployments
+* Control plane integration
+
+---
+
+## License
+
+MIT License
