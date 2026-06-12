@@ -1,0 +1,19 @@
+agent_id: "node-pm2-agent"
+environment: "production"
+log_level: "info"
+
+api_token: "change-me"
+
+node_id: "node-01"
+node_name: "Production Node 01"
+node_region: "us-local"
+
+workspace_path: "/var/www"
+
+deployments:
+  node-app:
+    repository_path: "/var/www/node-app"
+    preset: "node_pm2"
+    process_name: "node-app"
+    health_check_url: "http://localhost:3000"
+    health_check_expected_status: 200

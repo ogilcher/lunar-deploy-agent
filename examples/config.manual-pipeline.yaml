@@ -1,0 +1,37 @@
+agent_id: "manual-pipeline-agent"
+environment: "production"
+log_level: "info"
+
+api_token: "change-me"
+
+node_id: "manual-node-01"
+node_name: "Manual Pipeline Node"
+node_region: "us-local"
+
+workspace_path: "/var/www"
+
+deployments:
+  manual-node-app:
+    repository_path: "/var/www/manual-node-app"
+    steps:
+      - type: "git_pull"
+
+      - type: "npm_install"
+
+      - type: "npm_build"
+
+      - type: "pm2_start_or_restart"
+        process_name: "manual-node-app"
+        start_command: "npm"
+        arguments:
+          - "start"
+
+      - type: "pm2_save"
+
+      - type: "pm2_status"
+        process_name: "manual-node-app"
+
+      - type: "http_health_check"
+        url: "http://localhost:3000"
+        expected_status: 200
+        timeout_seconds: 10

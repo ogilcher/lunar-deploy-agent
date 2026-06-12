@@ -1,0 +1,21 @@
+agent_id: "loc_1-dev-agent"
+environment: "development"
+log_level: "info"
+
+api_token: "change-me"
+
+node_id: "local-den-node"
+node_name: "Local Development Agent"
+node_region: "local"
+
+workspace_path: "./workspace"
+
+deployments:
+  echo-test:
+    repository_path: "."
+    steps:
+      - type: "shell"
+        name: "hello_world"
+        command: "echo"
+        arguments:
+          - "Hello from Lunar Deploy Agent"
