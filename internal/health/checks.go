@@ -7,5 +7,9 @@ func RunChecks() Report {
 		&QueueCheck{},
 	)
 
+	registry.Register(
+		&PM2Check{},
+	)
+
 	return registry.Run()
 }
