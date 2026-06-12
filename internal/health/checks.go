@@ -39,5 +39,9 @@ func RunChecks(
 		},
 	)
 
+	registry.Register(
+		&UptimeCheck{},
+	)
+
 	return registry.Run()
 }
