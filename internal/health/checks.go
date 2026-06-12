@@ -23,5 +23,11 @@ func RunChecks(
 		},
 	)
 
+	registry.Register(
+		&DiskCheck{
+			Path: ".",
+		},
+	)
+
 	return registry.Run()
 }
