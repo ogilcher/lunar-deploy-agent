@@ -74,6 +74,9 @@ func StartServer(address string, configPath string) error {
 	mux.HandleFunc("/node", protected(func(writer http.ResponseWriter, request *http.Request) {
 		handleNodeInfo(writer, request, configPath)
 	}))
+	mux.HandleFunc("/heartbeat", protected(func(writer http.ResponseWriter, request *http.Request) {
+		handleHeartbeat(writer, request, configPath)
+	}))
 	mux.HandleFunc("/history", protected(handleHistory))
 	mux.HandleFunc("/jobs", protected(handleJobs))
 	mux.HandleFunc("/jobs/", protected(handleJobByID))

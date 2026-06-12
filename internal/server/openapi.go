@@ -95,6 +95,15 @@ paths:
         "101":
           description: WebSocket connection established
 
+  /health:
+    get:
+      summary: Get agent health
+      responses:
+        "405":
+          description: Method not allowed
+        "500":
+          description: Internal server error
+
   /deploy:
     post:
       summary: Trigger a deployment
