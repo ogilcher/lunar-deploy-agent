@@ -1,4 +1,5 @@
 agent_id: "local-dev-agent"
+api_token: "local-dev-token"
 environment: "development"
 workspace_path: "./workspace"
 log_level: "info"

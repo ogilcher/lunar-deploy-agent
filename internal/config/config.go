@@ -9,6 +9,7 @@ import (
 // Config represents the root application configuration for the agent.
 type Config struct {
 	AgentID       string                      `yaml:"agent_id"`
+	APIToken      string                      `yaml:"api_token"`
 	Environment   string                      `yaml:"environment"`
 	WorkspacePath string                      `yaml:"workspace_path"`
 	LogLevel      string                      `yaml:"log_level"`

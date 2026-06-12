@@ -38,32 +38,44 @@ type DeployRequest struct {
 }
 
 func StartServer(address string, configPath string) error {
+	appConfig, err := config.LoadConfig(configPath)
+	if err != nil {
+		return err
+	}
+
+	if err := config.ValidateConfig(appConfig); err != nil {
+		return err
+	}
+
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/health", handleHealth)
-	mux.HandleFunc("/deployments", func(writer http.ResponseWriter, request *http.Request) {
-		handleDeployments(writer, request, configPath)
-	})
-	mux.HandleFunc("/status", func(writer http.ResponseWriter, request *http.Request) {
-		handleStatus(writer, request, configPath)
-	})
-	mux.HandleFunc("/history", handleHistory)
-	mux.HandleFunc("/deploy", func(writer http.ResponseWriter, request *http.Request) {
-		handleDeploy(writer, request, configPath)
-	})
-
 	mux.HandleFunc("/openapi.yaml", handleOpenAPI)
-	mux.Handle(
-		"/swagger/",
-		SwaggerHandler(),
-	)
+	mux.Handle("/swagger/", SwaggerHandler())
 
-	mux.HandleFunc("/events", handleEventsWebSocket)
+	protected := func(
+		handler http.HandlerFunc,
+	) http.HandlerFunc {
+		return requireAPIToken(
+			handler,
+			appConfig.APIToken,
+		)
+	}
 
-	mux.HandleFunc("/jobs", handleJobs)
-	mux.HandleFunc("/jobs/", handleJobByID)
-
-	mux.HandleFunc("/queue", handleQueue)
+	mux.HandleFunc("/deployments", protected(func(writer http.ResponseWriter, request *http.Request) {
+		handleDeployments(writer, request, configPath)
+	}))
+	mux.HandleFunc("/status", protected(func(writer http.ResponseWriter, request *http.Request) {
+		handleStatus(writer, request, configPath)
+	}))
+	mux.HandleFunc("/history", protected(handleHistory))
+	mux.HandleFunc("/deploy", protected(func(writer http.ResponseWriter, request *http.Request) {
+		handleDeploy(writer, request, configPath)
+	}))
+	mux.HandleFunc("/jobs", protected(handleJobs))
+	mux.HandleFunc("/jobs/", protected(handleJobByID))
+	mux.HandleFunc("/queue", protected(handleQueue))
+	mux.HandleFunc("/events", protected(handleEventsWebSocket))
 
 	server := http.Server{
 		Addr:    address,
