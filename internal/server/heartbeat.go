@@ -46,7 +46,7 @@ func handleHeartbeat(
 		NodeID:        appConfig.NodeID,
 		NodeName:      appConfig.NodeName,
 		NodeRegion:    appConfig.NodeRegion,
-		Service:       "lunar-deploy-agent",
+		Service:       version.ServiceName,
 		Version:       version.AgentVersion,
 		Status:        "online",
 		StartedAt:     serverStartedAt,

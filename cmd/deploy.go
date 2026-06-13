@@ -24,7 +24,16 @@ var deployCmd = &cobra.Command{
 	Use:   "deploy",
 	Short: "Run a deployment operation",
 	Run: func(cmd *cobra.Command, args []string) {
-		appConfig := util.LoadAndValidateConfig(deployConfigPath)
+		appConfig, err := util.LoadAndValidateConfig(deployConfigPath)
+
+		if err != nil {
+			logger.Log.Errorw(
+				"failed to load and validate deploy-config",
+				"error", err,
+			)
+
+			return
+		}
 
 		deploymentConfig, exists := appConfig.Deployments[deploymentName]
 

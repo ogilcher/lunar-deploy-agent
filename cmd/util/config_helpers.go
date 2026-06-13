@@ -1,27 +1,36 @@
 package util
 
 import (
+	"fmt"
+
 	"github.com/ogilcher/lunar-deploy-agent/internal/config"
-	"github.com/ogilcher/lunar-deploy-agent/internal/logger"
 )
 
-// LoadAndValidateConfig loads the agent config and validates it before
-// command-specific logic runs.
+// LoadAndValidateConfig loads a YAML config file and validates it before use.
 //
-// This keeps Cobra commands small and prevents duplicate config-loading logic.
+// It returns the loaded config when successful.
+// It returns a wrapped error when loading or validation fails so callers can
+// log or display a clear failure reason.
 func LoadAndValidateConfig(
 	configPath string,
-) *config.Config {
+) (*config.Config, error) {
 	appConfig, err := config.LoadConfig(configPath)
+
 	if err != nil {
-		logger.Log.Errorw("Failed to load config.", "error", err)
-		return nil
+		return nil, fmt.Errorf(
+			"failed to load config %q: %w",
+			configPath,
+			err,
+		)
 	}
 
 	if err := config.ValidateConfig(appConfig); err != nil {
-		logger.Log.Errorw("Invalid deployment config.", "error", err)
-		return nil
+		return nil, fmt.Errorf(
+			"invalid config %q: %w",
+			configPath,
+			err,
+		)
 	}
 
-	return appConfig
+	return appConfig, nil
 }

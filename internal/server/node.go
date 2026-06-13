@@ -39,7 +39,7 @@ func handleNodeInfo(
 		NodeID:          appConfig.NodeID,
 		NodeName:        appConfig.NodeName,
 		NodeRegion:      appConfig.NodeRegion,
-		Service:         "lunar-deploy-agent",
+		Service:         version.ServiceName,
 		Version:         version.AgentVersion,
 		OperatingSystem: runtime.GOOS,
 		Architecture:    runtime.GOARCH,

@@ -17,22 +17,22 @@ func (c *ConfigCheck) Run() CheckResult {
 
 	if err != nil {
 		return CheckResult{
-			Name: 		c.Name(),
-			Healthy: 	false,
-			Message: 	err.Error(),
+			Name:    c.Name(),
+			Healthy: false,
+			Message: err.Error(),
 		}
 	}
 
 	if err := config.ValidateConfig(appConfig); err != nil {
 		return CheckResult{
-			Name:	 c.Name(),
+			Name:    c.Name(),
 			Healthy: false,
 			Message: err.Error(),
 		}
 	}
 
 	return CheckResult{
-		Name: c.Name(),
+		Name:    c.Name(),
 		Healthy: true,
 		Message: "configuration is valid",
 	}
