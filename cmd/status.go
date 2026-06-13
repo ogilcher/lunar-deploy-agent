@@ -27,7 +27,7 @@ var statusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "Show local agent status",
 	Run: func(cmd *cobra.Command, args []string) {
-		appConfig := util.LoadAndValidateConfig(statusConfigPath)
+		appConfig, err := util.LoadAndValidateConfig(statusConfigPath)
 
 		results, err := history.ReadDeploymentHistory(statusHistoryPath)
 

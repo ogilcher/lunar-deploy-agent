@@ -124,7 +124,7 @@ Expected:
 
 ### Node metadata
 ```bash
-curl http://localhost:8080/queue \
+curl http://localhost:8080/node \
   -H "Authorization: Bearer $TOKEN"
 ```
 Expected:
@@ -141,7 +141,7 @@ Expected:
 ### Trigger deployment
 ```bash
 curl -X POST http://localhost:8080/deploy \
-  -H "Content-Type: applicatioin/json" \
+  -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN"
   -d '{"deployment":"happy-path"}'
 ```
@@ -195,7 +195,7 @@ Expected:
 
 ## WebSocket Tests
 
-Open browswer console from:
+Open browser console from:
 
 ```ignorelang
 http://localhost:8080/swagger/index.html

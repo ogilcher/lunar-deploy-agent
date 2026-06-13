@@ -23,13 +23,6 @@ info:
   description: HTTP API for the Lunar Deploy Agent node service.
 
 paths:
-  /health:
-    get:
-      summary: Check agent health
-      responses:
-        "200":
-          description: Agent is healthy
-
   /status:
     get:
       summary: Get local agent status
@@ -72,6 +65,7 @@ paths:
           description: Deployment job
         "404":
           description: Job not found
+
     delete:
       summary: Cancel a deployment job
       parameters:
