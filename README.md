@@ -76,7 +76,7 @@ docs/architecture.md
 
 ### Requirements
 
-* Go 1.20+
+* Go 1.26+
 * Git
 * Node.js (optional)
 * PM2 (optional)

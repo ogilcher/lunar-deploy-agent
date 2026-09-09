@@ -58,10 +58,10 @@ func (j *DeployJob) runStep(
 	context deploycontext.DeploymentContext,
 	step steps.DeployStep,
 ) (DeploymentStepResult, error) {
-	stepResult := DeploymentStepResult {
+	stepResult := DeploymentStepResult{
 		StepName: step.Name(),
-		Success: false,
-		Started: time.Now(),
+		Success:  false,
+		Started:  time.Now(),
 	}
 
 	publishStepStarted(context, step, stepResult.Started)
