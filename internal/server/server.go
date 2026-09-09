@@ -288,8 +288,7 @@ func handleDeploy(
 
 	jobs.GlobalQueue.Enqueue(job)
 
-	writer.WriteHeader(http.StatusAccepted)
-	writeJSON(writer, job)
+	writeJSONStatus(writer, http.StatusAccepted, job)
 }
 
 func handleJobs(
@@ -368,6 +367,18 @@ func writeJSON(
 	writer http.ResponseWriter,
 	value any,
 ) {
+	writeJSONStatus(writer, http.StatusOK, value)
+}
+
+func writeJSONStatus(
+	writer http.ResponseWriter,
+	status int,
+	value any,
+) {
 	writer.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(writer).Encode(value)
+	writer.WriteHeader(status)
+
+	if err := json.NewEncoder(writer).Encode(value); err != nil {
+		return
+	}
 }
