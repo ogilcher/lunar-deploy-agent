@@ -147,7 +147,7 @@ func (s *Store) MarkCancelled(id string) bool {
 		return false
 	}
 
-	if job.Status == JobSucceeded || job.Status == JobFailed {
+	if job.Status != JobQueued {
 		return false
 	}
 
