@@ -19,9 +19,7 @@ func handleEventsWebSocket(
 	connection, err := websocket.Accept(
 		writer,
 		request,
-		&websocket.AcceptOptions{
-			InsecureSkipVerify: true,
-		},
+		nil,
 	)
 
 	if err != nil {
@@ -35,6 +33,7 @@ func handleEventsWebSocket(
 	)
 
 	eventChannel := events.GlobalEventBus.Subscribe()
+	defer events.GlobalEventBus.Unsubscribe(eventChannel)
 
 	for event := range eventChannel {
 		eventJSON, err := json.Marshal(event)

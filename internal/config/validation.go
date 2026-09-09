@@ -34,7 +34,9 @@ func ValidateConfig(appConfig *Config) error {
 
 			if len(deployment.Steps) > 0 {
 				return fmt.Errorf(
-					"deployments.%s cannot use both preset and manual steps")
+					"deployments.%s cannot use both preset and manual steps",
+					deploymentName,
+				)
 			}
 
 			continue
